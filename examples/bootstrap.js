@@ -9,4 +9,7 @@
     Store       = this.Store       = {}; // Subscribed model storage
     Helpers     = this.Helpers     = {}; // Format / UI helpers
     Protocols   = this.Protocols   = {}; // DNode function protocols
+    Models      = this.Models      = {}; // Backbone models
+    Views       = this.Views       = {}; // Backbone views
+    Controllers = this.Controllers = {}; // Backbone controllers
 })()

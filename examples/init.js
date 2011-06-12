@@ -10,12 +10,12 @@
         .connect(function(remote) {
             
             // Save the remote connection for persistance, start 
-            // the application, and enable hash url history, wait 
-            // for the DOM to render before starting main controller
+            // the application, and enable hash url history
             Server = remote;
             
-            $(function() {
-                //new Controllers.Application();
+            // Wait for the DOM to render before starting main controller
+            $(document).ready(function() {
+                new Controllers.Application();
             });
         });
 })()
