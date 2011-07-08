@@ -4,11 +4,11 @@
 //    For all details and documentation:
 //    https://github.com/sorensen/aebleskiver
 
+module.exports.avatar = require('./lib/backbone-avatar');
 module.exports.pubsub = require('./lib/backbone-pubsub');
 module.exports.crud   = require('./lib/backbone-crud');
-module.exports.avatar = require('./lib/backbone-avatar');
 model.exports.browser = {
-    pubsub : require('./browser/backbone.dnode'),
-    crud   : require('./browser/backbone.dnode'),
-    avatar : require('./browser/backbone.dnode')
+    avatar : require('./browser/avatar.dnode'),
+    pubsub : require('./browser/pubsub.dnode'),
+    crud   : require('./browser/crud.dnode')
 };
