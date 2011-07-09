@@ -1,8 +1,8 @@
-//    Aebleskiver
+//    Backbone-DNode
 //    (c) 2011 Beau Sorensen
-//    Aebleskiver may be freely distributed under the MIT license.
+//    Backbone-DNode may be freely distributed under the MIT license.
 //    For all details and documentation:
-//    https://github.com/sorensen/aebleskiver
+//    https://github.com/sorensen/backbone-dnode
 
 (function() {
     // Pubsub Middleware
@@ -19,7 +19,8 @@
     // be attached to this. Exported for both CommonJS and the browser.
     var Pubsub;
     if (typeof exports !== 'undefined') {
-        Pubsub = exports;
+        _        = require('underscore');
+        Backbone = require('backbone');
     }
     
     // Add to the main namespace with the Pubsub middleware
@@ -150,7 +151,9 @@
     _.extend(Backbone.Collection.prototype, common);
     
     // CommonJS browser export
-    if (typeof exports === 'undefined') {
+    if (typeof exports !== 'undefined') {
+        module.exports = Pubsub;
+    } else {
         this.Pubsub = Pubsub;
     }
 })()

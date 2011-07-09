@@ -1,8 +1,8 @@
-﻿//    Aebleskiver
+﻿//    Backbone-DNode
 //    (c) 2011 Beau Sorensen
-//    Aebleskiver may be freely distributed under the MIT license.
+//    Backbone-DNode may be freely distributed under the MIT license.
 //    For all details and documentation:
-//    https://github.com/sorensen/aebleskiver
+//    https://github.com/sorensen/backbone-dnode
 
 (function() {
     // Avatar middleware
@@ -10,10 +10,7 @@
     
     // The top-level namespace. All public classes and modules will
     // be attached to this. Exported for both CommonJS and the browser.
-    var Gravatar;
-    if (typeof exports !== 'undefined') {
-        Gravatar = exports;
-    }
+    var Avatar;
     
     // Add to the main namespace with the Gravatar middleware
     // for DNode, accepts a socket client and connection
@@ -30,7 +27,9 @@
     };
     
     // CommonJS browser export
-    if (typeof exports === 'undefined') {
-        this.Gravatar = Gravatar;
+    if (typeof exports !== 'undefined') {
+        module.exports = Avatar;
+    } else {
+        this.Avatar = Avatar;
     }
 })()
