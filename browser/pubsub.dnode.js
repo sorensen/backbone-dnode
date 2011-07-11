@@ -15,13 +15,20 @@
     // tense is to signal that the process has already happened on the 
     // server, this is a common naming pattern found throughout the app.
     
+    // Save a reference to the global object.
+    var root = this;
+  
     // The top-level namespace. All public classes and modules will
     // be attached to this. Exported for both CommonJS and the browser.
     var Pubsub;
-    if (typeof exports !== 'undefined') {
-        _        = require('underscore');
-        Backbone = require('backbone');
-    }
+    
+    // Require Underscore, if we're on the server, and it's not already present.
+    var _ = root._;
+    if (!_ && (typeof require !== 'undefined')) _ = require('underscore')._;
+    
+    // Require Backbone, if we're on the server, and it's not already present.
+    var Backbone = root.Backbone;
+    if (!Backbone && (typeof require !== 'undefined')) Backbone = require('backbone');
     
     // Add to the main namespace with the Pubsub middleware
     // for DNode, accepts a socket client and connection
@@ -154,6 +161,6 @@
     if (typeof exports !== 'undefined') {
         module.exports = Pubsub;
     } else {
-        this.Pubsub = Pubsub;
+        root.Pubsub = Pubsub;
     }
 })()

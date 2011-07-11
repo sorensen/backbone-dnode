@@ -8,6 +8,9 @@
     // Avatar middleware
     // -----------------
     
+    // Save a reference to the global object.
+    var root = this;
+  
     // The top-level namespace. All public classes and modules will
     // be attached to this. Exported for both CommonJS and the browser.
     var Avatar;
@@ -30,6 +33,6 @@
     if (typeof exports !== 'undefined') {
         module.exports = Avatar;
     } else {
-        this.Avatar = Avatar;
+        root.Avatar = Avatar;
     }
 })()

@@ -1,7 +1,7 @@
 {
     "name"        : "backbone-dnode",
     "description" : "Persistant backbone storage through dnode pub/sub",
-    "version"     : "0.1.6",
+    "version"     : "0.1.18",
     "homepage"    : "https://github.com/sorensen/backbone-dnode",
     "repository"  : {
         "type" : "git",
@@ -10,19 +10,6 @@
     "directories" : {
         "lib" : "./lib"
     },
-    "main"         : "./index",
-    "dependencies" : {
-        "backbone"      : ">= 0.5.0",
-        "dnode"         : ">= 0.7.3",
-        "mongoose"      : ">= 1.6.0",
-        "node-gravatar" : ">= 1.0.0"
-    },
-    "browserify" : "browser/index.js",
-    "author" : {
-        "name"  : "Beau Sorensen",
-        "email" : "mail@beausorensen.com",
-        "url"   : "http://beausorensen.com"
-    },
     "keywords" : [
         "backbone", 
         "redis", 
@@ -30,7 +17,21 @@
         "dnode", 
         "mongo"
     ],
+    "main"         : "./index",
+    "dependencies" : {
+        "backbone"      : ">= 0.5.1",
+        "underscore"    : ">= 1.1.6",
+        "dnode"         : ">= 0.7.3",
+        "mongoose"      : ">= 1.6.0",
+        "node-gravatar" : ">= 1.0.0"
+    },
+    "browserify" : "browser/index.js",
     "engines"  : {
         "node" : ">= 0.4.1 < 0.5.0"
+    },
+    "author" : {
+        "name"  : "Beau Sorensen",
+        "email" : "mail@beausorensen.com",
+        "url"   : "http://beausorensen.com"
     }
 }
