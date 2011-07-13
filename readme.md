@@ -1,5 +1,17 @@
 # Backbone DNode
 
+Backbone-DNode is a server to client integration package for use with, you guessed it, 
+Backbone and DNode. The package brovides both node.js server side code for CRUD and 
+Pubsub routines, as well as the matching client (or server) side routines.
+
+The idea is to make writing a real-time Backbone application as simple as possible, 
+the app is supported on the server side by using the Mongoose ORM for final validation
+and persistence. 
+
+The pubsub mechanics will default to using socket.io for updating the connected clients, 
+however, you can pass a redis server and connection options to the pubsub `config` method
+to utilize the built in redis publish and subscribe methods.
+
 ## Installation
 
 Brief aside on how to install the project, this will soon be put into a full 
@@ -11,7 +23,7 @@ installation guide, but until then, you know the drill.
 
 The project can be installed via NPM, or by cloning this repo into your project.
 
-    npm install backbone-dnode  
+    npm install backbone-dnode
 
 or
 
@@ -24,27 +36,77 @@ Whip up a server and attatch DNode, while using the backbone-dnode
 methods as middleware.
 
     var express = require('express'),
-        dnode   = require('dnode'),
-        pubsub  = require('backbone-pubsub'),
-        crud    = require('backbone-crud'),
-        avatar  = require('backbone-avatar'),
-        server  = express.createServer();
-    
-    server.listen(8080);
-    dnode()
-        .use(pubsub)
-        .use(crud)
-        .use(avatar)
-        .listen(server);
+        dnode      = require('dnode'),
+        middleware = require('backbone-dnode'),
+        browserify = require('browserify'),
+        server     = express.createServer();
 
-    
-At least one mongoose schema must be registered to use the CRUD
-routines, .
+Bundle the client side support files with browserify
 
-    Mongoose = require('mongoose');
+    var bundle = browserify({
+        require : 'backbone-dnode',
+        mount   : '/backbone-dnode.js',
+    });
+
+Register your Mongoose schemas, and then pass the database 
+instance to the CRUD configuration. At least one mongoose 
+schema must be registered to use the CRUD routines.
+
+    var Mongoose = require('mongoose'),
+        Schema   = mongoose.Schema,
+        ObjectId = Schema.ObjectId;
+
     Mongoose.connect('mongodb://localhost/db');
 
+    Foo = new Schema({
+        bar : { type : String, index : true }
+    });
+
+    database = Mongoose.connect('mongodb://localhost/db');
+    middelware.crud.config(database);
+
+Configure the Redis connection if you would like to use Redis 
+as the pubsub mechanics. This will allow you to use other libraries 
+such as Cluster, letting Redis act as the message queue.
+
+    var redis = require('redis');
+    middelware.pubsub.config(redis, {
+        port : 6379,
+        host : '127.0.0.1'
+    });
+
+Start the node server, and attach the backbone-dnode middleware
+to the DNode instance.
+
+    server.listen(8080);
+    dnode()
+        .use(middleware.pubsub)
+        .use(middleware.crud)
+        .listen(server);
+
+
 ## Client usage
+
+Include DNode and the browserified bundle, then attach the methods to the 
+DNode instance. For now, the remote connection object must be set to 
+`Server` for the CRUD and Pubsub routines to use.
+
+
+    <script src="underscore.js"></script>
+    <script src="backbone.js"></script>
+    <script src="dnode.js"></script>
+    <script src="backbone-dnode.js"></script>
+
+
+
+    var Server;
+    DNode()
+        .use(middleware.crud)
+        .use(middleware.pubsub)
+        .connect(function(remote) {
+            Server = remote;
+        });
+
 
 To connect to node.js and mongoose from the browser (or on the server), 
 a model `type` for mongoose must be specified, as well as overriding the 
@@ -62,7 +124,11 @@ the default `Backbone.sync` method
 
     Backbone.sync = _.sync
 
-
+Once the middleware has been established, and a model has been set to use 
+it (or if as been overridden globally), the default Backbone methods will 
+automatically send the changes through the socket (dnode), where they will 
+be mapped to the corresponding Mongoose schema, and then published to the 
+connected clients that have been subscribed to the model or collection's URL.
 
 ## Package dependancies (npm)
 
