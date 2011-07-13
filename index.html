@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>backbone-dnode</title>
+  <style>
+    body {
+      font-size: 16px;
+      line-height: 24px;
+      background: #F3E9F7;
+      color: #022;
+      font-family: Arial;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+    }
+    div.container {
+      width: 720px;
+      margin: 50px 0 50px 50px;
+    }
+    p, li {
+      margin: 16px 0 16px 0;
+      width: 550px;
+    }
+      p.break {
+        margin-top: 35px;
+      }
+    a, a:visited {
+      padding: 0 2px;
+      text-decoration: none;
+      background: #C8B1C9;
+      color: #222;
+    }
+    a:active, a:hover {
+      color: #000;
+      background: #BA7BA3;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 40px;
+    }
+    b.header {
+      font-size: 18px;
+    }
+    span.alias {
+      font-size: 14px;
+      font-style: italic;
+      margin-left: 20px;
+    }
+    table {
+      margin: 16px 0; padding: 0;
+    }
+      tr, td {
+        margin: 0; padding: 0;
+      }
+        td {
+          padding: 9px 15px 9px 0;
+        }
+          td.definition {
+            line-height: 18px;
+            font-size: 14px;
+          }
+    code, pre, tt {
+      font-family: Monaco, Consolas, "Lucida Console", monospace;
+      font-size: 12px;
+      line-height: 18px;
+      background-color: #EDE1F2;
+      color: #444;
+    }
+      code {
+        margin-left: 20px;
+      }
+      pre {
+        font-size: 12px;
+        padding: 2px 0 2px 12px;
+        border-left: 6px solid #B38AB5;
+        margin: 0px 0 10px;
+      }
+        li pre {
+          padding: 0;
+          border-left: 0;
+          margin: 6px 0 6px 0;
+        }
+    #diagram {
+      margin: 20px 0 0 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <h1>backbone-dnode &nbsp;<sub style="font-size:150%;">&clubs;</sub></h1>
+
+    <p>
+      <a href="http://github.com/sorensen/backbone-dnode/">backbone-dnode</a>
+      is a real-time multi-channel chat application for
+      <a href="http://nodejs.org">Node.js</a>.
+    </p>
+
+    <p>
+      <a href="docs/app.html">The complete annotated source code</a>
+      is also available.
+    </p>
+
+    <p>
+      <a href="#introduction">Introduction</a> |
+      <a href="#installation">Installation</a> |
+      <a href="#usage">Usage</a> |
+      <!--
+      <a href="#changes">Change Log</a>
+      -->
+    </p>
+
+    <h2 id="introduction">Introduction</h2>
+
+    <p>
+      Backbone-DNode is a server to client integration package for use with, you guessed it, 
+      Backbone and DNode. The package brovides both node.js server side code for CRUD and 
+      Pubsub routines, as well as the matching client (or server) side routines.
+    </p>
+    <p>
+      The idea is to make writing a real-time Backbone application as simple as possible, 
+      the app is supported on the server side by using the Mongoose ORM for final validation
+      and persistence. 
+    </p>
+    <p>
+      The pubsub mechanics will default to using socket.io for updating the connected clients, 
+      however, you can pass a redis server and connection options to the pubsub `config` method
+      to utilize the built in redis publish and subscribe methods.
+    </p>
+
+    <h2 id="installation">Installation</h2>
+    
+    <p>
+      backbone-dnode depends on <b>Node.js</b> and the <b>Node Package Manager</b>
+      (npm). If you don't already have these installed, grab the latest. Node
+      releases can be found on the <a href="http://www.nodejs.org/#download">download page</a>.
+      NPM can be installed with a script:<br />
+      <tt>curl http://npmjs.org/install.sh | sudo sh</tt>
+    </p>
+    <p>
+      Install backbone-dnode via NPM:<br />
+      <tt>npm install backbone-dnode</tt>
+    </p>
+    <p>
+      The project can be installed via NPM, or by cloning this repo into your project.
+    </p>
+    <pre>
+    
+      npm install backbone-dnode  
+    </pre>
+    <p>
+      or
+    </p>
+    <pre>
+    
+      git clone git://github.com/sorensen/backbone-dnode.git
+    </pre>
+    
+    <h2 id="usage">Usage</h2>
+    
+    <p>
+      There are two parts to using the backbone-dnode package, one part is to be 
+      used on the server, the other the client. 
+    </p>
+      
+    <h3>Server usage</h3>
+    <p>
+      Whip up a server and attatch DNode, while using the backbone-dnode
+      methods as middleware.
+    </p>
+    <pre>
+    
+      var express    = require('express'),
+          dnode      = require('dnode'),
+          middleware = require('backbone-dnode'),
+          browserify = require('browserify'),
+          server     = express.createServer();
+    </pre>
+    
+    <p>
+      Bundle the client side support files with browserify.
+    </p>
+    <pre>
+    
+      var bundle = browserify({
+          require : 'backbone-dnode',
+          mount   : '/backbone-dnode.js',
+      });
+    </pre>
+    
+    <p>
+      Register your Mongoose schemas, and then pass the database 
+      instance to the CRUD configuration. At least one mongoose 
+      schema must be registered to use the CRUD routines.
+    </p>
+    <pre>
+    
+        var Mongoose = require('mongoose'),
+            Schema   = mongoose.Schema,
+            ObjectId = Schema.ObjectId;
+
+        Mongoose.connect('mongodb://localhost/db');
+
+        Foo = new Schema({
+            bar : { type : String, index : true }
+        });
+
+        database = Mongoose.connect('mongodb://localhost/db');
+        middelware.crud.config(database);
+    </pre>
+        
+    <p>
+        Configure the Redis connection if you would like to use Redis 
+        as the pubsub mechanics. This will allow you to use other libraries 
+        such as Cluster, letting Redis act as the message queue.
+    </p>
+    <pre>
+    
+        var redis = require('redis');
+        middelware.pubsub.config(redis, {
+            port : 6379,
+            host : '127.0.0.1'
+        });
+    </pre>
+    
+    <h3>Client usage</h3>
+    <p>
+      Include DNode and the browserified bundle, then attach the methods to the 
+      DNode instance. For now, the remote connection object must be set to 
+      `Server` for the CRUD and Pubsub routines to use.
+    </p>
+    <pre>
+    
+        &lt;script src="underscore.js"&gt;&lt;/script&gt;
+        &lt;script src="backbone.js"&gt;&lt;/script&gt;
+        &lt;script src="dnode.js"&gt;&lt;/script&gt;
+        &lt;script src="backbone-dnode.js"&gt;&lt;/script&gt;
+    </pre>
+    <pre>
+    
+      var Server;
+      DNode()
+          .use(middleware.crud)
+          .use(middleware.pubsub)
+          .connect(function(remote) {
+              Server = remote;
+          });
+    </pre>
+    
+    <p>
+      To connect to node.js and mongoose from the browser (or on the server), 
+      a model `type` for mongoose must be specified, as well as overriding the 
+      `sync` method on each model, an underscore mixin has been created to
+      provide optional support based on the model, in case you have different 
+      persistant support in mind.
+    </p>
+    <pre>
+    
+      foo = Backbone.Model.extend({
+          type : 'room',
+          sync : _.sync
+      })
+    </pre>
+
+    <p>
+      You can also override the sync method globally, by overriding 
+      the default `Backbone.sync` method
+    </p>
+    <pre>
+    
+      Backbone.sync = _.sync
+    </pre>
+    
+    <p>
+      Once the middleware has been established, and a model has been set to use 
+      it (or if as been overridden globally), the default Backbone methods will 
+      automatically send the changes through the socket (dnode), where they will 
+      be mapped to the corresponding Mongoose schema, and then published to the 
+      connected clients that have been subscribed to the model or collection's URL.
+    </p>
+    <!-- 
+    <h2 id="changes">Change Log</h2>
+    -->
+    
+    <p>
+      <b class="header"></b><br />
+    </p>
+
+  </div>
+
+</body>
+</html>
