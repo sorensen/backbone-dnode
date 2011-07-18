@@ -129,7 +129,7 @@ a model is created outside of the collection.
         url   : 'foos',
         type  : 'foo',
         sync  : _.sync,
-        model : Foo
+        model  : Foo
     })
 
 You can also override the sync method globally, by overriding 
@@ -154,8 +154,36 @@ connected clients that have been subscribed to the model or collection's URL.
                 // and has added to the collection
                 
             },
+            error : function(code) {
+            
+                // Something went wrong, the server has responded with 
+                // an error code for client side handling
+            
+            }
         });
     })
+
+When the `subscribe` method has returned, you are now able to use all of the default 
+Backbone model methods and have them interact with the server.  When using any of the 
+Backbone `fetch`, `save`, `create`, or `delete` methods, a callback function will be 
+used when the server responds, and a `finished` method will be executed when the middleware 
+is done with the Backbone integration methods. Can optionally pass in an `error` method that 
+will be triggered if anything goes wrong on the server side.  Think of `finished` as the 
+Backbone `success` callback when normally using these methods, the name is changed to avoid 
+conflicts.
+
+    foos.create({
+        bar : 'something'
+    });
+
+Backbone.fetch() has been overloaded to accept a `query` and `sorting` argument, which will be 
+directly used on the server against the Mongoose ORM.  The default behavior for passing in `silent:true` 
+or `add:true` will still be used.
+
+    foos.fetch({
+        query   : { bar : 'something' },
+        sorting : { sort: [['created',-1]], limit: 20 }
+    });
 
 ## Package dependancies (npm)
 
