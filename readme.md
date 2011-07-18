@@ -35,7 +35,7 @@ or
 Whip up a server and attatch DNode, while using the backbone-dnode
 methods as middleware.
 
-    var express = require('express'),
+    var express    = require('express'),
         dnode      = require('dnode'),
         middleware = require('backbone-dnode'),
         browserify = require('browserify'),
@@ -44,8 +44,11 @@ methods as middleware.
 Bundle the client side support files with browserify
 
     var bundle = browserify({
-        require : 'backbone-dnode',
-        mount   : '/backbone-dnode.js',
+        require : [
+            'dnode',
+            'backbone-dnode'
+        ],
+        mount   : '/core.js',
     });
 
 Register your Mongoose schemas, and then pass the database 
@@ -69,11 +72,11 @@ Configure the Redis connection if you would like to use Redis
 as the pubsub mechanics. This will allow you to use other libraries 
 such as Cluster, letting Redis act as the message queue.
 
-    var redis = require('redis');
-    middelware.pubsub.config(redis, {
-        port : 6379,
-        host : '127.0.0.1'
-    });
+    var redis = require('redis'),
+        pub   = redis.createClient(),
+        sub   = redis.createClient();
+    
+    middelware.pubsub.config(pub, sub);
 
 Start the node server, and attach the backbone-dnode middleware
 to the DNode instance.
@@ -87,25 +90,24 @@ to the DNode instance.
 
 ## Client usage
 
-Include DNode and the browserified bundle, then attach the methods to the 
-DNode instance. For now, the remote connection object must be set to 
-`Server` for the CRUD and Pubsub routines to use.
-
+Include DNode and the browserified bundle, as well as the Backbone and underscore 
+dependancies.
 
     <script src="underscore.js"></script>
     <script src="backbone.js"></script>
-    <script src="dnode.js"></script>
     <script src="backbone-dnode.js"></script>
 
 
+  Use browserify to require the backbone-dnode package, which will return 
+  a JSON object containing the CRUD and Pubsub middleware for DNode.
 
-    var Server;
-    DNode()
+    var dnode      = require('dnode'),
+        middleware = require('backbone-dnode');
+
+    dnode()
         .use(middleware.crud)
         .use(middleware.pubsub)
-        .connect(function(remote) {
-            Server = remote;
-        });
+        .connect();
 
 
 To connect to node.js and mongoose from the browser (or on the server), 
@@ -117,6 +119,17 @@ persistant support in mind.
     foo = Backbone.Model.extend({
         type : 'room',
         sync : _.sync
+    });
+
+Now create the collection, the attributes are set on both the model and 
+collection to ensure that they will both use the same persistance, even if 
+a model is created outside of the collection.
+    
+    FooCollection = Backbone.Collection.extend({
+        url   : 'foos',
+        type  : 'foo',
+        sync  : _.sync,
+        model : Foo
     })
 
 You can also override the sync method globally, by overriding 
@@ -129,6 +142,20 @@ it (or if as been overridden globally), the default Backbone methods will
 automatically send the changes through the socket (dnode), where they will 
 be mapped to the corresponding Mongoose schema, and then published to the 
 connected clients that have been subscribed to the model or collection's URL.
+
+    var options = {};
+    var foos = new FooCollection();
+    
+    foos.subscribe(options, function() {
+        foos.fetch({
+            finished : function(data) {
+            
+                // The server has responded with the fetched data, 
+                // and has added to the collection
+                
+            },
+        });
+    })
 
 ## Package dependancies (npm)
 

@@ -1,7 +1,7 @@
 {
     "name"        : "backbone-dnode",
     "description" : "Persistant backbone storage through dnode pub/sub",
-    "version"     : "0.2.8",
+    "version"     : "0.2.9",
     "homepage"    : "https://github.com/sorensen/backbone-dnode",
     "repository"  : {
         "type" : "git",
