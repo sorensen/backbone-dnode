@@ -12,8 +12,15 @@
     var root = this;
   
     // The top-level namespace. All public classes and modules will
-    // be attached to this. Exported for both CommonJS and the browser.
-    var CRUD;
+    // be attached to this.
+    var crud;
+    
+    // Remote server socket connection reference
+    var server;
+    
+    // Storage container for subscribed models, allowing the returning method 
+    // calls from the server know where and how to find the model in question
+    var Store = root.Store || (root.Store = {});
     
     // Require Underscore, if we're on the server, and it's not already present.
     var _ = root._;
@@ -25,7 +32,10 @@
     
     // Add to the main namespace with the CRUD middleware
     // for DNode, accepts a socket client and connection
-    CRUD = function(client, con) {
+    crud = function(client, con) {
+        // Set a reference to the remote connection
+        server = client;
+    
         _.extend(this, {
         
             //###created
@@ -91,7 +101,8 @@
             },
         
             // The following procedures will only work for the acting client, 
-            // this may prove to be useful for future procedures 
+            // this may prove to be useful for future procedures, or if the pubsub
+            // middleware has been left out
             selfCreated   : function(resp, options) { this.synced(resp, options) },
             selfRead      : function(resp, options) { this.synced(resp, options) },
             selfUpdated   : function(resp, options) { this.synced(resp, options) },
@@ -122,7 +133,7 @@
         //###sync
         // Set the model or collection's sync method to communicate through DNode
         sync : function(method, model, options) {
-            if (!Server) return (options.error && options.error(503, model, options));
+            if (!server) return (options.error && options.error(503, model, options));
             
             // Remove the Backbone id from the model as not to conflict with 
             // Mongoose schemas, it will be re-assigned when the model returns
@@ -137,18 +148,18 @@
             
             // Delegate method call based on action
             switch (method) {
-                case 'read'   : Server.read({}, options); break;
-                case 'create' : Server.create(model.toJSON(), options); break;
-                case 'update' : Server.update(model.toJSON(), options); break;
-                case 'delete' : Server.destroy(model.toJSON(), options); break;
+                case 'read'   : server.read({}, options); break;
+                case 'create' : server.create(model.toJSON(), options); break;
+                case 'update' : server.update(model.toJSON(), options); break;
+                case 'delete' : server.destroy(model.toJSON(), options); break;
             };
         }
     });
     
-    // CommonJS browser export
+    // Exported for both CommonJS and the browser.
     if (typeof exports !== 'undefined') {
-        module.exports = CRUD;
+        module.exports = crud;
     } else {
-        root.CRUD = CRUD;
+        root.crud = crud;
     }
 })()

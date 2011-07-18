@@ -19,8 +19,15 @@
     var root = this;
   
     // The top-level namespace. All public classes and modules will
-    // be attached to this. Exported for both CommonJS and the browser.
-    var Pubsub;
+    // be attached to this.
+    var pubsub;
+    
+    // Remote server socket connection reference
+    var server;
+    
+    // Storage container for subscribed models, allowing the returning method 
+    // calls from the server know where and how to find the model in question
+    var Store = root.Store || (root.Store = {});
     
     // Require Underscore, if we're on the server, and it's not already present.
     var _ = root._;
@@ -32,7 +39,11 @@
     
     // Add to the main namespace with the Pubsub middleware
     // for DNode, accepts a socket client and connection
-    Pubsub = function(client, con) {
+    pubsub = function(client, con) {
+
+        // Set a reference to the remote connection
+        server = client;
+        
         _.extend(this, {
         
             //###subscribed
@@ -89,12 +100,12 @@
         // method is provided, it defaults to an 'update', which is the least 
         // conflicting method when returned to the client for processing
         publish : function(options, callback) {
-            if (!Server) return (options.error && options.error(503, model, options));
+            if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
             options.method  || (options.method = 'update');
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
-            Server.publish(model.toJSON(), options, function(resp, options){
+            server.publish(model.toJSON(), options, function(resp, options){
                 if (!options.silent) model.trigger('publish', model, options);
                 callback && callback(resp, options);
             });
@@ -111,7 +122,7 @@
         // 'Store' which holds the reference for future updates. Uses Backbone 'url' 
         // for subscriptions, relabeled to 'channel' for clarity
         subscribe : function(options, callback) {
-            if (!Server) return (options.error && options.error(503, model, options));
+            if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
@@ -120,7 +131,7 @@
             // called from the 'Server' have access to it
             if (!Store[options.channel] || options.override) {
                 Store[options.channel] = model;
-                Server.subscribe(model.toJSON(), options, function(resp, options) {
+                server.subscribe(model.toJSON(), options, function(resp, options) {
                     if (!options.silent) model.trigger('subscribe', model, options);
                     callback && callback(resp, options);
                 });
@@ -136,11 +147,11 @@
         // subscription 'Store', will trigger an unsubscribe event unless 'silent' 
         // is passed in the options
         unsubscribe : function(options, callback) {
-            if (!Server) return (options.error && options.error(503, model, options));
+            if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
-            Server.unsubscribe({}, options, function(resp, options) {
+            server.unsubscribe({}, options, function(resp, options) {
                 if (!options.silent) model.trigger('unsubscribe', model, options);
                 callback && callback(resp, options);
             });
@@ -157,10 +168,10 @@
     _.extend(Backbone.Model.prototype, common);
     _.extend(Backbone.Collection.prototype, common);
     
-    // CommonJS browser export
+    // Exported for both CommonJS and the browser.
     if (typeof exports !== 'undefined') {
-        module.exports = Pubsub;
+        module.exports = pubsub;
     } else {
-        root.Pubsub = Pubsub;
+        root.pubsub = pubsub;
     }
 })()

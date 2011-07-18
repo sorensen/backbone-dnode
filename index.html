@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
@@ -8,7 +8,7 @@
     body {
       font-size: 16px;
       line-height: 24px;
-      background: #F3E9F7;
+      background: #F4EBF8;
       color: #022;
       font-family: Arial;
       font-family: "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
@@ -27,15 +27,17 @@
     a, a:visited {
       padding: 0 2px;
       text-decoration: none;
-      background: #C8B1C9;
+      background: #EDE1F2;
       color: #222;
     }
     a:active, a:hover {
       color: #000;
-      background: #BA7BA3;
+      background: #D8C8D9;
     }
     h1, h2, h3, h4, h5, h6 {
       margin-top: 40px;
+      font-weight: bold;
+      text-shadow: 1px 1px 1px #fff;
     }
     b.header {
       font-size: 18px;
@@ -65,6 +67,10 @@
       background-color: #EDE1F2;
       color: #444;
     }
+      tt {
+        border: 1px solid #D5CADA;
+        padding: 1px 2px;
+      }
       code {
         margin-left: 20px;
       }
@@ -72,6 +78,7 @@
         font-size: 12px;
         padding: 2px 0 2px 12px;
         border-left: 6px solid #B38AB5;
+        border-left: 6px solid #6B536D;
         margin: 0px 0 10px;
       }
         li pre {
@@ -92,12 +99,13 @@
 
     <p>
       <a href="http://github.com/sorensen/backbone-dnode/">backbone-dnode</a>
-      is a real-time multi-channel chat application for
-      <a href="http://nodejs.org">Node.js</a>.
+      is an integration package between <a href="https://github.com/documentcloud/backbone">Backbone</a> and 
+      <a href="https://github.com/substack/dnode">DNode</a>, using <a href="https://github.com/learnboost/mongoose">Mongoose</a>
+      for persistance, providing seemless server side CRUD and Pubsub support for your Backbone.js projects.
     </p>
 
     <p>
-      <a href="docs/app.html">The complete annotated source code</a>
+      <a href="docs/backbone-crud.html">The complete annotated source code</a>
       is also available.
     </p>
 
@@ -124,7 +132,7 @@
     </p>
     <p>
       The pubsub mechanics will default to using socket.io for updating the connected clients, 
-      however, you can pass a redis server and connection options to the pubsub `config` method
+      however, you can pass a redis server and connection options to the pubsub <tt>config</tt> method
       to utilize the built in redis publish and subscribe methods.
     </p>
 
@@ -146,14 +154,14 @@
     </p>
     <pre>
     
-      npm install backbone-dnode  
+    npm install backbone-dnode  
     </pre>
     <p>
       or
     </p>
     <pre>
     
-      git clone git://github.com/sorensen/backbone-dnode.git
+    git clone git://github.com/sorensen/backbone-dnode.git
     </pre>
     
     <h2 id="usage">Usage</h2>
@@ -163,29 +171,36 @@
       used on the server, the other the client. 
     </p>
       
-    <h3>Server usage</h3>
+    <h3>Server side</h3>
     <p>
       Whip up a server and attatch DNode, while using the backbone-dnode
       methods as middleware.
     </p>
     <pre>
     
-      var express    = require('express'),
-          dnode      = require('dnode'),
-          middleware = require('backbone-dnode'),
-          browserify = require('browserify'),
-          server     = express.createServer();
+    var express    = require('express'),
+        dnode      = require('dnode'),
+        middleware = require('backbone-dnode'),
+        browserify = require('browserify'),
+        server     = express.createServer();
     </pre>
     
     <p>
-      Bundle the client side support files with browserify.
+      Bundle the client side support files with browserify, then attatch it 
+      to the express server instance. DNode can be included directly into the 
+      bundle to avoid code duplication.
     </p>
     <pre>
     
-      var bundle = browserify({
-          require : 'backbone-dnode',
-          mount   : '/backbone-dnode.js',
-      });
+    var bundle = browserify({
+        require : [
+            'dnode',
+            'backbone-dnode'
+        ],
+        mount   : '/core.js',
+    });
+
+    server.use(bundle);
     </pre>
     
     <p>
@@ -195,18 +210,19 @@
     </p>
     <pre>
     
-        var Mongoose = require('mongoose'),
-            Schema   = mongoose.Schema,
-            ObjectId = Schema.ObjectId;
+    var Mongoose = require('mongoose'),
+        Schema   = mongoose.Schema,
+        ObjectId = Schema.ObjectId;
 
-        Mongoose.connect('mongodb://localhost/db');
+    Mongoose.connect('mongodb://localhost/db');
 
-        Foo = new Schema({
-            bar : { type : String, index : true }
-        });
+    Foo = new Schema({
+        bar     : { type : String, index : true },
+        created : { type : Date, default : Date.now }
+    });
 
-        database = Mongoose.connect('mongodb://localhost/db');
-        middelware.crud.config(database);
+    database = Mongoose.connect('mongodb://localhost/db');
+    middleware.crud.config(database);
     </pre>
         
     <p>
@@ -216,59 +232,79 @@
     </p>
     <pre>
     
-        var redis = require('redis');
-        middelware.pubsub.config(redis, {
-            port : 6379,
-            host : '127.0.0.1'
-        });
+    var redis = require('redis'),
+        pub   = redis.createClient(),
+        sub   = redis.createClient();
+
+    middleware.pubsub.config(pub, sub);
     </pre>
     
-    <h3>Client usage</h3>
+    <h3>Client side</h3>
     <p>
-      Include DNode and the browserified bundle, then attach the methods to the 
-      DNode instance. For now, the remote connection object must be set to 
-      `Server` for the CRUD and Pubsub routines to use.
+      Include DNode and the browserified bundle, as well as the Backbone and underscore 
+      dependancies.
     </p>
     <pre>
     
-        &lt;script src="underscore.js"&gt;&lt;/script&gt;
-        &lt;script src="backbone.js"&gt;&lt;/script&gt;
-        &lt;script src="dnode.js"&gt;&lt;/script&gt;
-        &lt;script src="backbone-dnode.js"&gt;&lt;/script&gt;
+    &lt;script src="underscore.js"&gt;&lt;/script&gt;
+    &lt;script src="backbone.js"&gt;&lt;/script&gt;
+    &lt;script src="dnode.js"&gt;&lt;/script&gt;
+    &lt;script src="backbone-dnode.js"&gt;&lt;/script&gt;
     </pre>
-    <pre>
     
-      var Server;
-      DNode()
-          .use(middleware.crud)
-          .use(middleware.pubsub)
-          .connect(function(remote) {
-              Server = remote;
-          });
+    <p>
+      Use browserify to <tt>require</tt> the backbone-dnode package, which will return 
+      a JSON object containing the CRUD and Pubsub middleware for DNode. Attatch both 
+      packages and then supply them the DNode <tt>remote</tt> object for server communication.
+    </p>
+    <pre>
+    var dnode = require('dnode');
+    var middleware = require('backbone-dnode');
+      
+    dnode()
+        .use(middleware.crud)
+        .use(middleware.pubsub)
+        .connect(function(remote) {
+        
+        });
     </pre>
     
     <p>
       To connect to node.js and mongoose from the browser (or on the server), 
-      a model `type` for mongoose must be specified, as well as overriding the 
-      `sync` method on each model, an underscore mixin has been created to
+      a model <tt>type</tt> for mongoose must be specified, as well as overriding the 
+      <tt>sync</tt> method on each model, an underscore mixin has been created to
       provide optional support based on the model, in case you have different 
       persistant support in mind.
     </p>
     <pre>
     
-      foo = Backbone.Model.extend({
-          type : 'room',
-          sync : _.sync
-      })
+    Foo = Backbone.Model.extend({
+        type : 'foo',
+        sync : _.sync
+    })
     </pre>
 
     <p>
-      You can also override the sync method globally, by overriding 
-      the default `Backbone.sync` method
+      Now create the collection, the attributes are set on both the model and 
+      collection to ensure that they will both use the same persistance, even if 
+      a model is created outside of the collection.
     </p>
     <pre>
     
-      Backbone.sync = _.sync
+    FooCollection = Backbone.Collection.extend({
+        url   : 'foos',
+        type  : 'foo',
+        sync  : _.sync,
+        model : Foo
+    })
+    </pre>
+    <p>
+      You can also override the sync method globally, by overriding 
+      the default <tt>Backbone.sync</tt> method
+    </p>
+    <pre>
+    
+    Backbone.sync = _.sync;
     </pre>
     
     <p>
@@ -278,12 +314,68 @@
       be mapped to the corresponding Mongoose schema, and then published to the 
       connected clients that have been subscribed to the model or collection's URL.
     </p>
+    
+    <p>
+      Backbone Models and Collections have been extended with a <tt>subscribe</tt> and 
+      <tt>unsubscribe</tt> method, which both take <tt>options</tt> and a callback function as 
+      arguments. You can pass a specific <tt>channel</tt> name in the options, which will 
+      be used as the pubsub channel and lookup key, if omitted, the collection will 
+      default to the set URL if one can be found. The methods will trigger a Backbone 
+      event when used unless <tt>silent : true</tt> is sent with the options.
+    </p>
+    <pre>
+    
+    var options = {};
+    var foos = new FooCollection();
+    
+    foos.subscribe(options, function() {
+        foos.fetch({
+            finished : function(data) {
+            
+                // The server has responded with the fetched data, 
+                // and has added to the collection
+                
+            },
+        });
+    })
+    </pre>
+    <p>
+      When the <tt>subscribe</tt> method has returned, you are now able to use all of the default 
+      Backbone model methods and have them interact with the server.  When using any of the 
+      Backbone <tt>fetch</tt>, <tt>save</tt>, <tt>create</tt>, or <tt>delete</tt> methods, a callback function will be 
+      used when the server responds, and a <tt>finished</tt> method will be executed when the middleware 
+      is done with the Backbone integration methods. Can optionally pass in an <tt>error</tt> method that 
+      will be triggered if anything goes wrong on the server side.  Think of <tt>finished</tt> as the 
+      Backbone <tt>success</tt> callback when normally using these methods, the name is changed to avoid 
+      conflicts.
+    </p>
+    
+    <pre>
+    
+    foos.create({
+        bar : 'something'
+    });
+    </pre>
+    <p>
+      Backbone.fetch() has been overloaded to accept a <tt>query</tt> and <tt>sorting</tt> argument, which will be 
+      directly used on the server against the Mongoose ORM.  The default behavior for passing in <tt>silent:true</tt> 
+      or <tt>add:true</tt> will still be used.
+    </p>
+    
+    <pre>
+    
+    foos.fetch({
+        query   : { bar : 'something' },
+        sorting : { sort: [['created',-1]], limit: 20 }
+    });
+    </pre>
     <!-- 
     <h2 id="changes">Change Log</h2>
     -->
     
     <p>
-      <b class="header"></b><br />
+      <br />
+      A <b class="header">Beau Sorensen</b> project.
     </p>
 
   </div>

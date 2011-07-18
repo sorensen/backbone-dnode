@@ -4,6 +4,5 @@
 //    For all details and documentation:
 //    https://github.com/sorensen/backbone-dnode
 
-module.exports.avatar = require('./avatar.dnode');
-module.exports.pubsub = require('./pubsub.dnode');
-module.exports.crud   = require('./crud.dnode');
+module.exports.pubsub = require('./pubsub.dnode.min');
+module.exports.crud   = require('./crud.dnode.min');
