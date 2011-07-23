@@ -1,8 +1,8 @@
 {
     "name"        : "backbone-dnode",
     "description" : "Persistant backbone storage through dnode pub/sub",
-    "version"     : "0.2.9",
-    "homepage"    : "https://github.com/sorensen/backbone-dnode",
+    "version"     : "0.3.1",
+    "homepage"    : "http://sorensen.github.com/backbone-dnode",
     "repository"  : {
         "type" : "git",
         "url"  : "git://github.com/sorensen/backbone-dnode.git"
@@ -21,7 +21,7 @@
     "main"         : "./index",
     "dependencies" : {
         "backbone"      : ">= 0.5.1",
-        "underscore"    : ">= 1.1.6",
+        "underscore"    : ">= 1.1.7",
         "dnode"         : ">= 0.7.3",
         "mongoose"      : "= 1.6.0"
     },

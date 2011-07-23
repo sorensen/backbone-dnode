@@ -98,28 +98,6 @@
                 resp = _.getMongoId(resp);
                 Store[options.channel].remove(resp) || delete Store[options.channel];
                 options.finished && options.finished(resp);
-            },
-        
-            // The following procedures will only work for the acting client, 
-            // this may prove to be useful for future procedures, or if the pubsub
-            // middleware has been left out
-            selfCreated   : function(resp, options) { this.synced(resp, options) },
-            selfRead      : function(resp, options) { this.synced(resp, options) },
-            selfUpdated   : function(resp, options) { this.synced(resp, options) },
-            selfDestroyed : function(resp, options) { this.synced(resp, options) },
-            
-            //###synced
-            // Default synchronization event, call to Backbones internal
-            // 'success' method, then the custom 'finished' method when 
-            // everything has been completed
-            synced : function(resp, options) {
-                resp = _.getMongoId(resp);
-            
-                // Call to Backbone's predefined 'success' method which 
-                // is created per each 'sync' event, then to an optional
-                // 'finished' method for any final procedures
-                options.success && options.success(resp);
-                options.finished && options.finished(resp);
             }
         });
     };
@@ -130,6 +108,21 @@
     // be used on directly. Defaults to 'Backbone.sync' otherwise.
     _.mixin({
     
+        // ###getMongoId
+        // Assign the mongo ObjectID to sync up with 
+        // Backbone's 'id' attribute that is used internally,
+        // can be used with an array of ß.Models or a single one
+        getMongoId : function(data) {
+            data._id && (data.id = data._id);
+            if (_.isArray(data)) {
+                _.each(data, function(model, key) {
+                    if (model.id && !model._id) data[key]._id = model.id;
+                    data[key].id = model._id;
+                });
+            }
+            return data;
+        },
+        
         //###sync
         // Set the model or collection's sync method to communicate through DNode
         sync : function(method, model, options) {
@@ -162,4 +155,4 @@
     } else {
         root.crud = crud;
     }
-})()
+})();

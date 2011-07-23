@@ -37,6 +37,17 @@
     var Backbone = root.Backbone;
     if (!Backbone && (typeof require !== 'undefined')) Backbone = require('backbone');
     
+    
+    _.mixin({
+        // ###getUrl
+        // Helper function to get a URL from a Model or Collection as a property
+        // or as a function.
+        getUrl : function(object) {
+            if (!(object && object.url)) return null;
+            return _.isFunction(object.url) ? object.url() : object.url;
+        }
+    });
+    
     // Add to the main namespace with the Pubsub middleware
     // for DNode, accepts a socket client and connection
     pubsub = function(client, con) {
@@ -99,7 +110,7 @@
         // the main entry point for client to server communications.  If no 
         // method is provided, it defaults to an 'update', which is the least 
         // conflicting method when returned to the client for processing
-        publish : function(options, callback) {
+        publish : function(options, next) {
             if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
@@ -107,7 +118,7 @@
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
             server.publish(model.toJSON(), options, function(resp, options){
                 if (!options.silent) model.trigger('publish', model, options);
-                callback && callback(resp, options);
+                next && next(resp, options);
             });
             return this;
         }
@@ -116,12 +127,17 @@
     // Common extention object for both models and collections
     var common = {
     
+        //###connection
+        // Setting a reference to the DNode/socket connection to allow direct
+        // server communication without the need of a global object
+        connection : server,
+    
         //###subscribe
         // Subscribe to the 'Server' for model changes, if 'override' is set to true
         // in the options, this model will replace any other models in the local 
         // 'Store' which holds the reference for future updates. Uses Backbone 'url' 
         // for subscriptions, relabeled to 'channel' for clarity
-        subscribe : function(options, callback) {
+        subscribe : function(options, next) {
             if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
@@ -133,11 +149,11 @@
                 Store[options.channel] = model;
                 server.subscribe(model.toJSON(), options, function(resp, options) {
                     if (!options.silent) model.trigger('subscribe', model, options);
-                    callback && callback(resp, options);
+                    next && next(resp, options);
                 });
             } else {
                 if (!options.silent) model.trigger('subscribe', model, options);
-                callback && callback(model, options);
+                next && next(model, options);
             }
             return this;
         },
@@ -146,14 +162,14 @@
         // Stop listening for published model data, removing the reference in the local
         // subscription 'Store', will trigger an unsubscribe event unless 'silent' 
         // is passed in the options
-        unsubscribe : function(options, callback) {
+        unsubscribe : function(options, next) {
             if (!server) return (options.error && options.error(503, model, options));
             var model = this;
             options         || (options = {});
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
             server.unsubscribe({}, options, function(resp, options) {
                 if (!options.silent) model.trigger('unsubscribe', model, options);
-                callback && callback(resp, options);
+                next && next(resp, options);
             });
             
             // The object must be deleted, or a new subscription with the same 
@@ -174,4 +190,4 @@
     } else {
         root.pubsub = pubsub;
     }
-})()
+})();
