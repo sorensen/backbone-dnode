@@ -145,7 +145,10 @@
       NPM can be installed with a script:<br />
       <tt>curl http://npmjs.org/install.sh | sudo sh</tt>
     </p>
-    
+    <p>
+      Install backbone-dnode via NPM:<br />
+      <tt>npm install backbone-dnode</tt>
+    </p>
     <p>
       The project can be installed via NPM, or by cloning this repo into your project.
     </p>
@@ -210,15 +213,13 @@
     var Mongoose = require('mongoose'),
         Schema   = mongoose.Schema,
         ObjectId = Schema.ObjectId;
-
-    Mongoose.connect('mongodb://localhost/db');
+        database = Mongoose.connect('mongodb://localhost/db');
 
     Foo = new Schema({
         bar     : { type : String, index : true },
         created : { type : Date, default : Date.now }
     });
 
-    database = Mongoose.connect('mongodb://localhost/db');
     middleware.crud.config(database);
     </pre>
         
@@ -245,7 +246,8 @@
     
     &lt;script src="underscore.js"&gt;&lt;/script&gt;
     &lt;script src="backbone.js"&gt;&lt;/script&gt;
-    &lt;script src="core.js"&gt;&lt;/script&gt;
+    &lt;script src="dnode.js"&gt;&lt;/script&gt;
+    &lt;script src="backbone-dnode.js"&gt;&lt;/script&gt;
     </pre>
     
     <p>
