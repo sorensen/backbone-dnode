@@ -213,15 +213,13 @@
     var Mongoose = require('mongoose'),
         Schema   = mongoose.Schema,
         ObjectId = Schema.ObjectId;
-
-    Mongoose.connect('mongodb://localhost/db');
+        database = Mongoose.connect('mongodb://localhost/db');
 
     Foo = new Schema({
         bar     : { type : String, index : true },
         created : { type : Date, default : Date.now }
     });
 
-    database = Mongoose.connect('mongodb://localhost/db');
     middleware.crud.config(database);
     </pre>
         
