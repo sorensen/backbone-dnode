@@ -17,6 +17,11 @@
 nbproject
 thumbs.db
 
+# Logs
+.log
+.pid
+.sock
+
 # Dreamweaver added files
 _notes
 dwsync.xml
@@ -30,9 +35,8 @@ dwsync.xml
 .svn
 publish
 .idea
+_dev
 
 # build script local files
 build/buildinfo.properties
 build/config/buildinfo.properties
-
-_dev
