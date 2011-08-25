@@ -18,12 +18,12 @@
         "mongodb",
         "mongoose"
     ],
-    "main"         : "./index",
+    "main" : "./index",
     "dependencies" : {
-        "backbone"      : ">= 0.5.1",
-        "underscore"    : ">= 1.1.7",
-        "dnode"         : ">= 0.7.3",
-        "mongoose"      : "= 1.6.0"
+        "backbone"   : "0.5.3",
+        "underscore" : "1.1.7",
+        "dnode"      : "0.8.1",
+        "mongoose"   : "1.8.3"
     },
     "browserify" : "browser/index.js",
     "engines"  : {
