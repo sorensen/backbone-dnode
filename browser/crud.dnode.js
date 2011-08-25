@@ -30,12 +30,34 @@
     var Backbone = root.Backbone;
     if (!Backbone && (typeof require !== 'undefined')) Backbone = require('backbone');
     
+    // Wrap an optional error callback with a fallback error event.
+    var wrapError = function(onError, model, options) {
+        return function(resp) {
+            if (onError) {
+                onError(model, resp, options);
+            } else {
+                model.trigger('error', model, resp, options);
+            }
+        };
+    };
+
+    // Wrap an optional success callback with a fallback success event.
+    var wrapFinished = function(onFinished, model, options) {
+        return function(resp) {
+            if (onFinished) {
+                onFinished(model, resp, options);
+            } else {
+                model.trigger('success', model, resp, options);
+            }
+        };
+    };
+
     // Add to the main namespace with the CRUD middleware
     // for DNode, accepts a socket client and connection
     crud = function(client, con) {
         // Set a reference to the remote connection
         server = client;
-    
+
         _.extend(this, {
         
             //###created
@@ -52,7 +74,6 @@
                 } else if (model instanceof Backbone.Collection) {
                     if (!model.get(resp.id)) model.add(model.parse(resp));
                 }
-                options.finished && options.finished(resp);
             },
             
             //###read
@@ -73,7 +94,6 @@
                         model.add(model.parse(resp));
                     }
                 }
-                options.finished && options.finished(resp);
             },
             
             //###updated
@@ -89,15 +109,13 @@
                 } else {
                     model.set(model.parse(resp));
                 }
-                options.finished && options.finished(resp);
             },
             
             //###destroyed
             // A model has been destroyed 
-            destroyed : function(resp, options) {
+            deleted : function(resp, options) {
                 resp = _.getMongoId(resp);
                 Store[options.channel].remove(resp) || delete Store[options.channel];
-                options.finished && options.finished(resp);
             }
         });
     };
@@ -111,7 +129,7 @@
         // ###getMongoId
         // Assign the mongo ObjectID to sync up with 
         // Backbone's 'id' attribute that is used internally,
-        // can be used with an array of ß.Models or a single one
+        // can be used with an array of ÃŸ.Models or a single one
         getMongoId : function(data) {
             data._id && (data.id = data._id);
             if (_.isArray(data)) {
@@ -126,33 +144,38 @@
         //###sync
         // Set the model or collection's sync method to communicate through DNode
         sync : function(method, model, options) {
-            if (!server) return (options.error && options.error(503, model, options));
-            
             // Remove the Backbone id from the model as not to conflict with 
             // Mongoose schemas, it will be re-assigned when the model returns
             // to the client side
             if (model.attributes && model.attributes._id) delete model.attributes.id;
             
             // Set the RPC options for model interaction
-            options.type      || (options.type = model.type || model.collection.type);
-            options.url       || (options.url = _.getUrl(model));
-            options.channel   || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
-            options.method    || (options.method = method);
-            
+            options.type    || (options.type = model.type || model.collection.type);
+            options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
+            options.method  || (options.method = method);
+            options.error = wrapError(options.error, model, options);
+            options.finished = wrapFinished(options.finished, model, options);
+            if (!server) {
+                options.error();
+                return;
+            }
             // Delegate method call based on action
-            switch (method) {
-                case 'read'   : server.read({}, options); break;
-                case 'create' : server.create(model.toJSON(), options); break;
-                case 'update' : server.update(model.toJSON(), options); break;
-                case 'delete' : server.destroy(model.toJSON(), options); break;
-            };
+            server[method](model.toJSON(), options, function(resp) {
+                
+                // The server has finished, but we still need 
+                // to wait for the `resp` to be added by Backbone
+                if (method === 'read') {
+                    resp = _.getMongoId(resp);
+                    options.success(resp);
+                } else {
+                    options.finished(resp);
+                }
+            });
         }
     });
     
     // Exported for both CommonJS and the browser.
-    if (typeof exports !== 'undefined') {
-        module.exports = crud;
-    } else {
-        root.crud = crud;
-    }
+    if (typeof exports !== 'undefined') module.exports = crud;
+    else root.crud = crud;
+
 })();

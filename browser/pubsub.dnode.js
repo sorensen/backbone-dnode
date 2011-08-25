@@ -63,17 +63,15 @@
             // application, it may prove as a useful way to 
             // update clients, and it may prove to be an added
             // security risk, when private channels are involved
-            subscribed : function(resp, options) {
-                if (!options.channel) return;
-                options.finished && options.finished(resp);
+            subscribed : function(channel, online) {
+                Store[channel] && Store[channel].trigger('subscribe', online);
             },
         
             //###unsubscribed
             // Someone has unsubscribed from a channel, see the
             // note above, as it applies to this method as well
-            unsubscribed : function(resp, options) {
-                if (!options.channel) return;
-                options.finished && options.finished(resp);
+            unsubscribed : function(channel, online) {
+                Store[channel] && Store[channel].trigger('unsubscribe', online);
             },
             
             //###published
@@ -85,9 +83,8 @@
                 if (!options.channel) return;
                 switch (options.method) {
                     case 'create' : this.created(resp, options); break;
-                    case 'read'   : this.read(resp, options); break;
                     case 'update' : this.updated(resp, options); break;
-                    case 'delete' : this.destroyed(resp, options); break;
+                    case 'delete' : this.deleted(resp, options); break;
                 };
             }
         });
@@ -143,16 +140,19 @@
             options         || (options = {});
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
             
+            // Check for a root `user` object for a default `online` option
+            if (!options.online && root.user) {
+                options.online = root.user.get('id') || root.user.id;
+            }
+
             // Add the model to a local object container so that other methods
             // called from the 'Server' have access to it
             if (!Store[options.channel] || options.override) {
                 Store[options.channel] = model;
                 server.subscribe(model.toJSON(), options, function(resp, options) {
-                    if (!options.silent) model.trigger('subscribe', model, options);
                     next && next(resp, options);
                 });
             } else {
-                if (!options.silent) model.trigger('subscribe', model, options);
                 next && next(model, options);
             }
             return this;
@@ -167,8 +167,12 @@
             var model = this;
             options         || (options = {});
             options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
+            
+            // Check for a root `user` object for a default `online` option
+            if (!options.online && root.user) {
+                options.online = root.user.get('id') || root.user.id;
+            }
             server.unsubscribe({}, options, function(resp, options) {
-                if (!options.silent) model.trigger('unsubscribe', model, options);
                 next && next(resp, options);
             });
             
@@ -177,6 +181,18 @@
             // option is sent upon subscription
             delete Store[options.channel];
             return this;
+        },
+
+        //###online
+        // Retrieve a list of all subscribed clients
+        online : function(options, next) {
+            if (!server) return (options.error && options.error(503, model, options));
+            var model = this;
+            options         || (options = {});
+            options.channel || (options.channel = (model.collection) ? _.getUrl(model.collection) : _.getUrl(model));
+            server.online(options, function(resp) {
+                next && next(resp);
+            });
         }
     };
     
@@ -185,9 +201,7 @@
     _.extend(Backbone.Collection.prototype, common);
     
     // Exported for both CommonJS and the browser.
-    if (typeof exports !== 'undefined') {
-        module.exports = pubsub;
-    } else {
-        root.pubsub = pubsub;
-    }
+    if (typeof exports !== 'undefined') module.exports = pubsub;
+    else root.pubsub = pubsub;
+
 })();
