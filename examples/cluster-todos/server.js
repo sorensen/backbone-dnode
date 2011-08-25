@@ -15,7 +15,7 @@ var express      = require('express'),
     middleware   = require('../../'),
     DNode        = require('dnode'),
     browserify   = require('browserify'),
-    app          = module.exports = express.createServer();
+    app          = express.createServer();
 
 // Configuration
 // -------------
@@ -98,10 +98,15 @@ middleware.pubsub.config({
 // ----------
 
 // Start up the server
-app.listen(port);
+if (!module.parent) {
+    app.listen(port);
+}
 
 // Attatch the DNode middleware and connect
 DNode()
     .use(middleware.pubsub) // Pub/sub channel support
     .use(middleware.crud)   // Backbone integration
     .listen(app)            // Start your engines!
+
+module.exports = app;
+

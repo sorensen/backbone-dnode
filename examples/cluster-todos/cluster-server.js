@@ -12,15 +12,14 @@ Cluster('./server')
     .use(Cluster.logger(__dirname + '/logs'))
     .use(Cluster.pidfiles(__dirname + '/pids'))
     .use(Cluster.cli())
-    .use(Cluster.repl(3001))
+    .use(Cluster.repl(8000))
     .use(Cluster.debug())
-    .use(Cluster.reload(['lib', 'vendor', 'app.js']))
     .use(Cluster.stats({ 
         connections   : true, 
         lightRequests : true 
     }))
     .use(Live({
-        port : 3002,
+        port : 8080,
         host : 'localhost',
         user : '',
         pass : ''
