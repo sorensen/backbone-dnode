@@ -31,6 +31,7 @@ dwsync.xml
 .komodotools
 
 # Folders to ignore
+node_modules
 .hg
 .svn
 publish
