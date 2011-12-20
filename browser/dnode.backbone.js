@@ -2,8 +2,7 @@
 (function() {
   
   var root = this
-    , pubsub
-    , crud
+    , pubsub = false
     , server
     , cache = {}
   
@@ -14,14 +13,6 @@
   // Require Backbone, if we're on the server, and it's not already present.
   var Backbone = root.Backbone
   if (!Backbone && (typeof require !== 'undefined')) Backbone = require('backbone')
-  
-  // Wrap an optional error callback with a fallback error event.
-  var wrapError = function(onError, model, options) {
-    return function(resp) {
-      if (onError) onError(model, resp, options)
-      else model.trigger('error', model, resp, options)
-    }
-  }
 
   // Wrap an optional success callback with a fallback success event.
   var wrapFinished = function(onFinished, model, options) {
@@ -31,71 +22,76 @@
     }
   }
 
-  function middleware(client, con) {
-    server = client
+  function middleware(options) {
+    options || (options = {})
+    options.pubsub && (pubsub = options.pubsub)
 
-    _.extend(this, {
-    
-      created: function(resp, options) {
-        var model = cache[options.channel]
-        if (model instanceof Backbone.Model) {
-          model.set(model.parse(resp))
-        } else if (model instanceof Backbone.Collection) {
-          if (!model.get(resp.id)) model.add(model.parse(resp))
-        }
-      }
+    return function(client, con) {
+      server = client
+
+      _.extend(this, {
       
-    , read: function(resp, options) {
-        var model = cache[options.channel]
-        if (model instanceof Backbone.Model) {
-          model.set(model.parse(resp))
-        } else if (model instanceof Backbone.Collection) {
-          if (_.isArray(resp)) {
-            model.reset(model.parse(resp))
-          } else if (!model.get(resp.id)) {
-            model.add(model.parse(resp))
+        created: function(resp, options) {
+          var model = cache[options.channel]
+          if (model instanceof Backbone.Model) {
+            model.set(model.parse(resp))
+          } else if (model instanceof Backbone.Collection) {
+            if (!model.get(resp.id)) model.add(model.parse(resp))
           }
         }
-      }
-      
-    , updated: function(resp, options) {
-        var model = cache[options.channel]
-        if (model.get(resp.id)) {
-          model.get(resp.id).set(model.parse(resp))
-        } else {
-          model.set(model.parse(resp))
+        
+      , read: function(resp, options) {
+          var model = cache[options.channel]
+          if (model instanceof Backbone.Model) {
+            model.set(model.parse(resp))
+          } else if (model instanceof Backbone.Collection) {
+            if (_.isArray(resp)) {
+              model.reset(model.parse(resp))
+            } else if (!model.get(resp.id)) {
+              model.add(model.parse(resp))
+            }
+          }
         }
-      }
-      
-    , deleted: function(resp, options) {
-        var model = cache[options.channel]
-        if (model instanceof Backbone.Model) {
-          model.trigger('destroy', model, model.collection, options)
-          delete cache[options.channel]
-        } else if (model instanceof Backbone.Collection) {
+        
+      , updated: function(resp, options) {
+          var model = cache[options.channel]
           if (model.get(resp.id)) {
-            model.trigger('destroy', model.get(resp.id), model, options)
+            model.get(resp.id).set(model.parse(resp))
+          } else {
+            model.set(model.parse(resp))
           }
         }
-      }
-
-    , subscribed: function(channel, online) {
-        cache[channel] && cache[channel].trigger('subscribe', online)
-      }
-    
-    , unsubscribed: function(channel, online) {
-        cache[channel] && cache[channel].trigger('unsubscribe', online)
-      }
-      
-    , published: function(resp, options) {
-        if (!options.channel) return
-        switch (options.method) {
-          case 'create': this.created(resp, options) ;break
-          case 'update': this.updated(resp, options) ;break
-          case 'delete': this.deleted(resp, options) ;break
+        
+      , deleted: function(resp, options) {
+          var model = cache[options.channel]
+          if (model instanceof Backbone.Model) {
+            model.trigger('destroy', model, model.collection, options)
+            delete cache[options.channel]
+          } else if (model instanceof Backbone.Collection) {
+            if (model.get(resp.id)) {
+              model.trigger('destroy', model.get(resp.id), model, options)
+            }
+          }
         }
-      }
-    })
+
+      , subscribed: function(channel, online) {
+          cache[channel] && cache[channel].trigger('subscribe', online)
+        }
+      
+      , unsubscribed: function(channel, online) {
+          cache[channel] && cache[channel].trigger('unsubscribe', online)
+        }
+        
+      , published: function(resp, options) {
+          if (!options.channel) return
+          switch (options.method) {
+            case 'create': this.created(resp, options) ;break
+            case 'update': this.updated(resp, options) ;break
+            case 'delete': this.deleted(resp, options) ;break
+          }
+        }
+      })
+    }
   }
   
   _.mixin({
@@ -109,11 +105,10 @@
       // Mongoose schemas, it will be re-assigned when the model returns
       // to the client side
       if (model.attributes && model.attributes._id) delete model.attributes.id
-      
+
       // Set the RPC options for model interaction
       options.type || (options.type = model.type || model.collection.type)
       options.method = method
-      options.error = wrapError(options.error, model, options)
       options.finished = wrapFinished(options.finished, model, options)
       options.channel || (options.channel = (model.collection) 
         ? _.getUrl(model.collection) 
@@ -127,6 +122,7 @@
         return
       }
       server[method](model.toJSON(), options, function(resp) {
+        if (!pubsub) options.success(resp)
         options.finished(resp)
       })
     }
@@ -157,7 +153,6 @@
       return this
     }
     
-
   , unsubscribe: function(opt, fn) {
       opt || (opt = {})
       if (!server) return (fn && fn(new Error('no connection')))

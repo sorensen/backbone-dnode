@@ -35,79 +35,99 @@ or
 Whip up a server and attatch DNode, while using the backbone-dnode
 methods as middleware.
 
-    var express    = require('express'),
-        dnode      = require('dnode'),
-        middleware = require('backbone-dnode'),
-        browserify = require('browserify'),
-        server     = express.createServer();
+```javascript
 
-Bundle the client side support files with browserify
+var express = require('express')
+  , DNode = require('dnode')
+  , BackboneDNode = require('backbone-dnode')
+  , server = express.createServer()
+````
 
-    var bundle = browserify({
-        require : [
-            'dnode',
-            'backbone-dnode'
-        ],
-        mount   : '/core.js',
-    });
+Simply allow the package to be served through your express static if 
+you have included the package via `npm`. Serving up the client side script 
+can also be done via [browserify](https://github.com/substack/node-browserify), 
+but that is entirely up to you, as this can be done many ways, and I generally 
+prefer to bundle all client-side javascript into a single minifified file.
+
+```javascript
+
+server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
+````
 
 Register your Mongoose schemas, and then pass the database 
 instance to the CRUD configuration. At least one mongoose 
 schema must be registered to use the CRUD routines.
 
-    var Mongoose = require('mongoose'),
-        Schema   = mongoose.Schema,
-        ObjectId = Schema.ObjectId;
+```javascript
 
-    Mongoose.connect('mongodb://localhost/db');
+var Mongoose = require('mongoose')
+  , Schema = mongoose.Schema
 
-    Foo = new Schema({
-        bar : { type : String, index : true }
-    });
+Mongoose.connect('mongodb://localhost/db')
 
-    database = Mongoose.connect('mongodb://localhost/db');
-    middelware.crud.config(database);
+Foo = new Schema({
+  bar: { type: String, index: true }
+})
+
+db = Mongoose.connect('mongodb://localhost/db')
+````
+
+(Optional)
 
 Configure the Redis connection if you would like to use Redis 
 as the pubsub mechanics. This will allow you to use other libraries 
-such as Cluster, letting Redis act as the message queue.
+such as Cluster, letting Redis act as the message queue. If you don't 
+use redis, the package will default to a single-threaded mode, which will 
+work fine so long as you don't have multiple instances of node running.
 
-    var redis = require('redis'),
-        pub   = redis.createClient(),
-        sub   = redis.createClient();
-    
-    middelware.pubsub.config(pub, sub);
+```javascript
+
+var redis = require('redis')
+  , pub = redis.createClient()
+  , sub = redis.createClient()
+````
 
 Start the node server, and attach the backbone-dnode middleware
 to the DNode instance.
 
-    server.listen(8080);
-    dnode()
-        .use(middleware.pubsub)
-        .use(middleware.crud)
-        .listen(server);
+```javascript
 
+server.listen(8080)
+dnode()
+  .use(BackboneDNode.pubsub({
+    publish: pub
+  , subscribe: sub 
+  }))
+  .use(BackboneDNode.crud({
+    database: db
+  }))
+  .listen(server)
+````
 
 ## Client usage
 
-Include DNode and the browserified bundle, as well as the Backbone and underscore 
-dependancies.
+Simply include the client-side part of the package onto the page, which
+may differ depending on how you serve up your static content.
 
-    <script src="underscore.js"></script>
-    <script src="backbone.js"></script>
-    <script src="backbone-dnode.js"></script>
+```html
+<script src="/dnode.js"></script>
+<script src="/backbone-dnode.js"></script>
+````
 
+The package will need to be configured as well, allowing it to be used
+as DNode middleware, if you wish to use the pubsub methods of the package, 
+enable it, as it is not used by default.  This will broadcast all changes 
+to any models to anyone else connected, otherwise, it will only call back to 
+the current client, and use the default Backbone `success` methods.
 
-  Use browserify to require the backbone-dnode package, which will return 
-  a JSON object containing the CRUD and Pubsub middleware for DNode.
+```javascript
 
-    var dnode      = require('dnode'),
-        middleware = require('backbone-dnode');
-
-    dnode()
-        .use(middleware.crud)
-        .use(middleware.pubsub)
-        .connect();
+DNode()
+  .use(root.dnodeBackbone({
+    pubsub: true
+  }))
+  .connect()
+````
 
 
 To connect to node.js and mongoose from the browser (or on the server), 
@@ -116,26 +136,35 @@ a model `type` for mongoose must be specified, as well as overriding the
 provide optional support based on the model, in case you have different 
 persistant support in mind.
 
-    foo = Backbone.Model.extend({
-        type : 'room',
-        sync : _.sync
-    });
+```javascript
+
+foo = Backbone.Model.extend({
+  type: 'room'
+, sync: _.sync
+})
+````
 
 Now create the collection, the attributes are set on both the model and 
 collection to ensure that they will both use the same persistance, even if 
 a model is created outside of the collection.
-    
-    FooCollection = Backbone.Collection.extend({
-        url   : 'foos',
-        type  : 'foo',
-        sync  : _.sync,
-        model  : Foo
-    })
+
+```javascript
+
+FooCollection = Backbone.Collection.extend({
+  url: 'foos'
+, type: 'foo'
+, sync: _.sync
+, model: Foo
+})
+````
 
 You can also override the sync method globally, by overriding 
 the default `Backbone.sync` method
 
-    Backbone.sync = _.sync
+```javascript
+
+Backbone.sync = _.sync
+````
 
 Once the middleware has been established, and a model has been set to use 
 it (or if as been overridden globally), the default Backbone methods will 
@@ -143,25 +172,23 @@ automatically send the changes through the socket (dnode), where they will
 be mapped to the corresponding Mongoose schema, and then published to the 
 connected clients that have been subscribed to the model or collection's URL.
 
-    var options = {};
-    var foos = new FooCollection();
-    
-    foos.subscribe(options, function() {
-        foos.fetch({
-            finished : function(data) {
-            
-                // The server has responded with the fetched data, 
-                // and has added to the collection
-                
-            },
-            error : function(code) {
-            
-                // Something went wrong, the server has responded with 
-                // an error code for client side handling
-            
-            }
-        });
-    })
+```javascript
+var options = {}
+  , foos = new FooCollection()
+
+foos.subscribe(options, function() {
+  foos.fetch({
+    finished: function(model, resp, options) {
+      // The server has responded with the fetched data, 
+      // and has added to the collection
+    }
+  , error: function(model, resp, options) {
+      // Something went wrong, the server has responded with 
+      // an error code for client side handling
+    }
+  })
+})
+````
 
 When the `subscribe` method has returned, you are now able to use all of the default 
 Backbone model methods and have them interact with the server.  When using any of the 
@@ -172,25 +199,28 @@ will be triggered if anything goes wrong on the server side.  Think of `finished
 Backbone `success` callback when normally using these methods, the name is changed to avoid 
 conflicts.
 
-    foos.create({
-        bar : 'something'
-    });
+```javascript
+
+foos.create({
+    bar : 'something'
+})
+````
 
 Backbone.fetch() has been overloaded to accept a `query` and `sorting` argument, which will be 
 directly used on the server against the Mongoose ORM.  The default behavior for passing in `silent:true` 
 or `add:true` will still be used.
 
-    foos.fetch({
-        query   : { bar : 'something' },
-        sorting : { sort: [['created',-1]], limit: 20 }
-    });
+```javascript
+
+foos.fetch({
+  query: { bar : 'something' }
+, sorting: { sort: [['created',-1]], limit: 20 }
+})
+````
 
 ## Package dependancies (npm)
 
 * [dnode @ 0.6.10](http://github.com/substack/dnode)
-* [socket.io @ 0.6.17](http://github.com/LearnBoost/Socket.IO-node)
 * [backbone @ 0.3.3](http://github.com/documentcloud/backbone)
 * [underscore @ 1.1.5](http://github.com/documentcloud/underscore)
 * [mongoose @ 1.3.0](http://github.com/LearnBoost/mongoose)
-* [connect-mongodb @ 0.3.0](http://github.com/kcbanner/connect-mongo)
-* [node-gravatar @ 1.0.0](http://github.com/arnabc/node-gravatar)

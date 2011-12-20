@@ -26,6 +26,10 @@
   , "mongoose": ">= 1.8.3"
   , "redis": ">= 0.6.7"
   }
+, "devDependencies" : {
+    "vows" : "0.4.9"
+  , "assert" : "0.6.0"
+  }
 , "browserify": "browser/index.js"
 , "engines": {
     "node": ">= 0.6.2"

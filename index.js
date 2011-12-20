@@ -4,5 +4,5 @@
 //    For all details and documentation:
 //    https://github.com/sorensen/backbone-dnode
 
-module.exports.pubsub = require('./lib/backbone-pubsub');
-module.exports.crud   = require('./lib/backbone-crud');
+module.exports.pubsub = require('./lib/pubsub');
+module.exports.crud   = require('./lib/crud');
