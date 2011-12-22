@@ -14,13 +14,6 @@ to utilize the built in redis publish and subscribe methods.
 
 ## Installation
 
-Brief aside on how to install the project, this will soon be put into a full 
-installation guide, but until then, you know the drill.
-
-* [Install node.js](http://github.com/joyent/node)
-* [Install NPM](http://github.com/joyent/npm)
-* Install all project dependancies below with NPM
-
 The project can be installed via NPM, or by cloning this repo into your project.
 
     npm install backbone-dnode
@@ -72,9 +65,7 @@ Foo = new Schema({
 db = Mongoose.connect('mongodb://localhost/db')
 ````
 
-(Optional)
-
-Configure the Redis connection if you would like to use Redis 
+(Optional) Configure the Redis connection if you would like to use Redis 
 as the pubsub mechanics. This will allow you to use other libraries 
 such as Cluster, letting Redis act as the message queue. If you don't 
 use redis, the package will default to a single-threaded mode, which will 
@@ -111,7 +102,7 @@ may differ depending on how you serve up your static content.
 
 ```html
 <script src="/dnode.js"></script>
-<script src="/backbone-dnode.js"></script>
+<script src="/dnode.backbone.js"></script>
 ````
 
 The package will need to be configured as well, allowing it to be used

@@ -14,11 +14,27 @@
   var Backbone = root.Backbone
   if (!Backbone && (typeof require !== 'undefined')) Backbone = require('backbone')
 
+  // Helper function to get a value from a Backbone object as a property
+  // or as a function.
+  var getValue = function(object, prop) {
+    if (!(object && object[prop])) return null;
+    return _.isFunction(object[prop]) ? object[prop]() : object[prop];
+  }
+
+  // Throw an error when a URL is needed, and none is supplied.
+  var urlError = function() {
+    throw new Error('A "url" property or function must be specified');
+  }
+
+  var serverError = function() {
+    throw new Error('A server connection could not be found')
+  }
+
   // Wrap an optional success callback with a fallback success event.
-  var wrapFinished = function(onFinished, model, options) {
+  var wrapFinished = function(onFinished, model, opt) {
     return function(resp) {
-      if (onFinished) onFinished(model, resp, options)
-      else model.trigger('success', model, resp, options)
+      if (onFinished) onFinished(model, resp, opt)
+      else model.trigger('success', model, resp, opt)
     }
   }
 
@@ -31,63 +47,65 @@
 
       _.extend(this, {
       
-        created: function(resp, options) {
-          var model = cache[options.channel]
+        created: function(resp, opt) {
+          var model = cache[opt.url]
           if (model instanceof Backbone.Model) {
             model.set(model.parse(resp))
           } else if (model instanceof Backbone.Collection) {
-            if (!model.get(resp.id)) model.add(model.parse(resp))
+            if (!model.get(resp[model.idAttribute])) model.add(model.parse(resp))
           }
         }
         
-      , read: function(resp, options) {
-          var model = cache[options.channel]
+      , read: function(resp, opt) {
+          var model = cache[opt.url]
           if (model instanceof Backbone.Model) {
             model.set(model.parse(resp))
           } else if (model instanceof Backbone.Collection) {
             if (_.isArray(resp)) {
               model.reset(model.parse(resp))
-            } else if (!model.get(resp.id)) {
+            } else if (!model.get(resp[model.idAttribute])) {
               model.add(model.parse(resp))
             }
           }
         }
         
-      , updated: function(resp, options) {
-          var model = cache[options.channel]
-          if (model.get(resp.id)) {
-            model.get(resp.id).set(model.parse(resp))
+      , updated: function(resp, opt) {
+          var model = cache[opt.url]
+          if (model.get(resp[model.idAttribute])) {
+            model.get(resp[model.idAttribute]).set(model.parse(resp))
           } else {
             model.set(model.parse(resp))
           }
         }
         
-      , deleted: function(resp, options) {
-          var model = cache[options.channel]
-          if (model instanceof Backbone.Model) {
-            model.trigger('destroy', model, model.collection, options)
-            delete cache[options.channel]
-          } else if (model instanceof Backbone.Collection) {
-            if (model.get(resp.id)) {
-              model.trigger('destroy', model.get(resp.id), model, options)
+      , deleted: function(resp, opt) {
+          var model = cache[opt.url]
+          if (model instanceof Backbone.Collection) {
+            if (model.get(resp[model.idAttribute])) {
+              model = model.get(resp[model.idAttribute])
             }
+          } else {
+            delete cache[opt.url]
+          }
+          if (model instanceof Backbone.Model) {
+            model.trigger('destroy', model, model.collection, opt)
           }
         }
 
-      , subscribed: function(channel, online) {
-          cache[channel] && cache[channel].trigger('subscribe', online)
+      , subscribed: function(url, online) {
+          cache[url] && cache[url].trigger('subscribe', online)
         }
       
-      , unsubscribed: function(channel, online) {
-          cache[channel] && cache[channel].trigger('unsubscribe', online)
+      , unsubscribed: function(url, online) {
+          cache[url] && cache[url].trigger('unsubscribe', online)
         }
         
-      , published: function(resp, options) {
-          if (!options.channel) return
-          switch (options.method) {
-            case 'create': this.created(resp, options) ;break
-            case 'update': this.updated(resp, options) ;break
-            case 'delete': this.deleted(resp, options) ;break
+      , published: function(resp, opt) {
+          if (!opt.url) return
+          switch (opt.method) {
+            case 'create': this.created(resp, opt) ;break
+            case 'update': this.updated(resp, opt) ;break
+            case 'delete': this.deleted(resp, opt) ;break
           }
         }
       })
@@ -95,45 +113,19 @@
   }
   
   _.mixin({
-    getUrl: function(object) {
-      if (!(object && object.url)) return null
-      return _.isFunction(object.url) ? object.url(): object.url
-    }
-  
-  , sync: function(method, model, options) {
-      // Remove the Backbone id from the model as not to conflict with 
-      // Mongoose schemas, it will be re-assigned when the model returns
-      // to the client side
-      if (model.attributes && model.attributes._id) delete model.attributes.id
-
+    sync: function(method, model, opt) {
+      if (!server) return opt.error(new Error('no connection'))
       // Set the RPC options for model interaction
-      options.type || (options.type = model.type || model.collection.type)
-      options.method = method
-      options.finished = wrapFinished(options.finished, model, options)
-      options.channel || (options.channel = (model.collection) 
-        ? _.getUrl(model.collection) 
-        : _.getUrl(model))
+      opt.type || (opt.type = model.type || model.collection.type)
+      opt.method = method
+      opt.finished = wrapFinished(opt.finished, model, opt)
+      if (!opt.url) opt.url = getValue(model, 'url') || urlError()
 
-      if (!server) return options.error(new Error('no connection'))
-      if (method === 'read') {
-        server.read(options, function(resp) {
-          options.success(resp)
-        })
-        return
-      }
-      server[method](model.toJSON(), options, function(resp) {
-        if (!pubsub) options.success(resp)
-        options.finished(resp)
+      if (method === 'read') return server.read(opt, opt.success)
+      server[method](model.toJSON(), opt, function(resp) {
+        if (!pubsub) opt.success(resp)
+        opt.finished(resp)
       })
-    }
-  })
-  
-  // Extend default Backbone functionality
-  _.extend(Backbone.Model.prototype, {
-    url: function() {
-      var base = _.getUrl(this.collection) || this.urlRoot || ''
-      if (this.isNew()) return base
-      return base + (base.charAt(base.length - 1) == ':' ? '': ':') + encodeURIComponent(this.id)
     }
   })
   
@@ -143,25 +135,19 @@
   
   , subscribe: function(opt, fn) {
       opt || (opt = {})
-      if (!server) return (fn && fn(new Error('no connection')))
-      var channel = opt.channel || (this.collection) 
-        ? _.getUrl(this.collection) 
-        : _.getUrl(this)
-      
-      if (!cache[channel]) cache[channel] = this
-      server.subscribe(channel, fn)
+      if (!server) serverError()
+      if (!opt.url) opt.url = getValue(this, 'url') || urlError()
+      if (!cache[opt.url]) cache[opt.url] = this
+      server.subscribe(opt.url, fn)
       return this
     }
     
   , unsubscribe: function(opt, fn) {
       opt || (opt = {})
-      if (!server) return (fn && fn(new Error('no connection')))
-      var channel = (channel || (this.collection) 
-        ? _.getUrl(this.collection)
-        : _.getUrl(this))
-
-      delete cache[channel]
-      server.unsubscribe(channel, fn)
+      if (!server) serverError()
+      if (!opt.url) opt.url = getValue(this, 'url') || urlError()
+      delete cache[opt.url]
+      server.unsubscribe(opt.url, fn)
       return this
     }
   }

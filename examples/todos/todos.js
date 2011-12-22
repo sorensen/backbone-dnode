@@ -16,6 +16,7 @@ $(function(){
     url  : 'todos',
     type : 'todo',
     sync : _.sync,
+    idAttribute: '_id',
 
     // Default attributes for the todo.
     defaults: {
@@ -58,6 +59,7 @@ $(function(){
     url  : 'todos',
     type : 'todo',
     sync : _.sync,
+    idAttribute: '_id',
 
     // Filter down the list of all todo items that are finished.
     done: function() {
@@ -275,10 +277,11 @@ $(function(){
   
   // Finally, we kick things off by creating the **App**.
   DNode()
-    .use(crud)
-    .use(pubsub)
-    .connect(function() {
+    .use(dnodeBackbone({
+      pubsub: true
+    }))
+    .connect(_.once(function() {
       window.App = new AppView;
-    });
+    }));
 
 });
