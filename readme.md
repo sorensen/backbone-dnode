@@ -8,10 +8,6 @@ The idea is to make writing a real-time Backbone application as simple as possib
 the app is supported on the server side by using the Mongoose ORM for final validation
 and persistence. 
 
-The pubsub mechanics will default to using socket.io for updating the connected clients, 
-however, you can pass a redis server and connection options to the pubsub `config` method
-to utilize the built in redis publish and subscribe methods.
-
 ## Installation
 
 The project can be installed via NPM, or by cloning this repo into your project.
@@ -209,9 +205,3 @@ foos.fetch({
 })
 ````
 
-## Package dependancies (npm)
-
-* [dnode @ 0.6.10](http://github.com/substack/dnode)
-* [backbone @ 0.3.3](http://github.com/documentcloud/backbone)
-* [underscore @ 1.1.5](http://github.com/documentcloud/underscore)
-* [mongoose @ 1.3.0](http://github.com/LearnBoost/mongoose)

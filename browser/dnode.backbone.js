@@ -115,12 +115,10 @@
   _.mixin({
     sync: function(method, model, opt) {
       if (!server) return opt.error(new Error('no connection'))
-      // Set the RPC options for model interaction
       opt.type || (opt.type = model.type || model.collection.type)
       opt.method = method
       opt.finished = wrapFinished(opt.finished, model, opt)
       if (!opt.url) opt.url = getValue(model, 'url') || urlError()
-
       if (method === 'read') return server.read(opt, opt.success)
       server[method](model.toJSON(), opt, function(resp) {
         if (!pubsub) opt.success(resp)

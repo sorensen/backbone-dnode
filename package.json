@@ -1,7 +1,7 @@
 {
   "name": "backbone-dnode"
 , "description": "Persistant backbone storage through dnode pub/sub"
-, "version": "0.4.0"
+, "version": "0.4.1"
 , "homepage": "http://sorensen.github.com/backbone-dnode"
 , "repository": {
     "type": "git"
@@ -27,8 +27,7 @@
   , "redis": ">= 0.6.7"
   }
 , "devDependencies" : {
-    "vows" : "0.4.9"
-  , "assert" : "0.6.0"
+    "mocha" : "0.5.0"
   }
 , "browserify": "browser/index.js"
 , "engines": {
