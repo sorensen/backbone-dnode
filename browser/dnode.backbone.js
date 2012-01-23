@@ -1,5 +1,13 @@
+//    backbone-dnode
+//    (c) 2012 Beau Sorensen
+//    Backbone-DNode may be freely distributed under the MIT license.
+//    For all details and documentation:
+//    https://github.com/sorensen/backbone-dnode
 
-(function() {
+// Client CRUD/Pubsub middleware
+// -----------------------------
+
+;(function() {
   
   var root = this
     , pubsub = false
@@ -38,6 +46,7 @@
     }
   }
 
+  // DNode configurable middleware
   function middleware(options) {
     options || (options = {})
     options.pubsub && (pubsub = options.pubsub)
@@ -68,7 +77,7 @@
             }
           }
         }
-        
+
       , updated: function(resp, opt) {
           var model = cache[opt.url]
           if (model.get(resp[model.idAttribute])) {
@@ -99,15 +108,6 @@
       , unsubscribed: function(url, online) {
           cache[url] && cache[url].trigger('unsubscribe', online)
         }
-        
-      , published: function(resp, opt) {
-          if (!opt.url) return
-          switch (opt.method) {
-            case 'create': this.created(resp, opt) ;break
-            case 'update': this.updated(resp, opt) ;break
-            case 'delete': this.deleted(resp, opt) ;break
-          }
-        }
       })
     }
   }
@@ -131,6 +131,8 @@
   var common = {
     connection: server
   
+    // Subscribe to the model or collection on the server, adding 
+    // it to the local cache as well for lookup on incomming events
   , subscribe: function(opt, fn) {
       if (typeof opt === 'function') { fn = opt; opt = {} }
       opt || (opt = {})

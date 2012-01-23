@@ -5,17 +5,19 @@
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
   <title>backbone-dnode</title>
   <style>
+    @import url('http://shjs.sourceforge.net/css/sh_ide-eclipse.min.css');
     body {
       font-size: 16px;
       line-height: 24px;
-      background: #F4EBF8;
+      background: #F8F3FB;
       color: #022;
       font-family: Arial;
       font-family: "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
     }
     div.container {
       width: 720px;
-      margin: 50px 0 50px 50px;
+      margin: 50px auto;
+      padding: 0 10px;
     }
     p, li {
       margin: 16px 0 16px 0;
@@ -38,10 +40,29 @@
       margin-top: 40px;
       font-weight: bold;
       text-shadow: 1px 1px 1px #fff;
+      border-bottom: 4px solid #D8C8D9;
     }
-    b.header {
+    h1 {
+      font-size: 50px;
+      padding-bottom: 3px;
+      border-bottom: 6px solid #C8B1C9;
+    }
+    h2 {
+      font-size: 36px;
+    }
+    h3 {
+      font-size: 30px;
+    }
+    .header, .header:visited {
       font-size: 18px;
+      font-weight: bold;
+      color: #000;
+      background: none;
+      padding: 0;
     }
+      .header:active, .header:hover {
+        background: none;
+      }
     span.alias {
       font-size: 14px;
       font-style: italic;
@@ -64,8 +85,8 @@
       font-family: Monaco, Consolas, "Lucida Console", monospace;
       font-size: 12px;
       line-height: 18px;
-      background-color: #EDE1F2;
-      color: #444;
+      background-color: #EDE1F2 !important;
+      color: #000;
     }
       tt {
         border: 1px solid #D5CADA;
@@ -105,7 +126,7 @@
     </p>
 
     <p>
-      <a href="docs/backbone-crud.html">The complete annotated source code</a>
+      <a href="docs/dnode.backbone.html">The complete annotated source code</a>
       is also available.
     </p>
 
@@ -113,9 +134,6 @@
       <a href="#introduction">Introduction</a> |
       <a href="#installation">Installation</a> |
       <a href="#usage">Usage</a> |
-      <!--
-      <a href="#changes">Change Log</a>
-      -->
     </p>
 
     <h2 id="introduction">Introduction</h2>
@@ -139,29 +157,20 @@
     <h2 id="installation">Installation</h2>
     
     <p>
-      backbone-dnode depends on <b>Node.js</b> and the <b>Node Package Manager</b>
-      (npm). If you don't already have these installed, grab the latest. Node
-      releases can be found on the <a href="http://www.nodejs.org/#download">download page</a>.
-      NPM can be installed with a script:<br />
-      <tt>curl http://npmjs.org/install.sh | sudo sh</tt>
-    </p>
-    <p>
-      Install backbone-dnode via NPM:<br />
-      <tt>npm install backbone-dnode</tt>
-    </p>
-    <p>
       The project can be installed via NPM, or by cloning this repo into your project.
     </p>
-    <pre>
+    <pre class="sh_sh">
     
-    npm install backbone-dnode  
+  npm install backbone-dnode  
     </pre>
     <p>
       or
     </p>
-    <pre>
+    <pre class="sh_sh">
     
-    git clone git://github.com/sorensen/backbone-dnode.git
+  git clone git://github.com/sorensen/backbone-dnode.git
+  cd backbone-dnode
+  npm link
     </pre>
     
     <h2 id="usage">Usage</h2>
@@ -176,31 +185,24 @@
       Whip up a server and attatch DNode, while using the backbone-dnode
       methods as middleware.
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    var express    = require('express'),
-        dnode      = require('dnode'),
-        middleware = require('backbone-dnode'),
-        browserify = require('browserify'),
-        server     = express.createServer();
+  var express = require('express')
+    , DNode = require('dnode')
+    , BackboneDNode = require('backbone-dnode')
+    , server = express.createServer()
     </pre>
     
     <p>
-      Bundle the client side support files with browserify, then attatch it 
-      to the express server instance. DNode can be included directly into the 
-      bundle to avoid code duplication.
+      Simply allow the package to be served through your express static if 
+      you have included the package via <tt>npm</tt>. Serving up the client side script 
+      can also be done via <a href="https://github.com/substack/node-browserify">browserify</a>, 
+      but that is entirely up to you, as this can be done many ways, and I generally 
+      prefer to bundle all client-side javascript into a single minifified file.
     </p>
-    <pre>
-    
-    var bundle = browserify({
-        require : [
-            'dnode',
-            'backbone-dnode'
-        ],
-        mount   : '/core.js',
-    });
+    <pre class="sh_javascript">
 
-    server.use(bundle);
+  server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
     </pre>
     
     <p>
@@ -208,63 +210,78 @@
       instance to the CRUD configuration. At least one mongoose 
       schema must be registered to use the CRUD routines.
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    var Mongoose = require('mongoose'),
-        Schema   = mongoose.Schema,
-        ObjectId = Schema.ObjectId;
-        database = Mongoose.connect('mongodb://localhost/db');
+  var mongoose = require('mongoose')
+    , Schema = mongoose.Schema
+    , db = mongoose.connect('mongodb://localhost/db')
 
-    Foo = new Schema({
-        bar     : { type : String, index : true },
-        created : { type : Date, default : Date.now }
-    });
-
-    middleware.crud.config(database);
+  Foo = new Schema({
+    bar: { type: String, index: true }
+  })
     </pre>
         
     <p>
-        Configure the Redis connection if you would like to use Redis 
-        as the pubsub mechanics. This will allow you to use other libraries 
-        such as Cluster, letting Redis act as the message queue.
+      (Optional) Configure the Redis connection if you would like to use Redis 
+      as the pubsub mechanics. This will allow you to use other libraries 
+      such as Cluster, letting Redis act as the message queue. If you don't 
+      use redis, the package will default to a single-threaded mode, which will 
+      work fine so long as you don't have multiple instances of node running.
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    var redis = require('redis'),
-        pub   = redis.createClient(),
-        sub   = redis.createClient();
-
-    middleware.pubsub.config(pub, sub);
+  var redis = require('redis')
+    , pub = redis.createClient()
+    , sub = redis.createClient()
     </pre>
+
+    <p>
+      Start the node server, and attach the backbone-dnode middleware
+      to the DNode instance.
+    </p>
     
+    <pre class="sh_javascript">
+
+  server.listen(8080)
+  dnode()
+    .use(BackboneDNode.pubsub({
+      publish: pub
+    , subscribe: sub 
+    }))
+    .use(BackboneDNode.crud({
+      database: db
+    }))
+    .listen(server)
+    </pre>
+
     <h3>Client side</h3>
     <p>
-      Include DNode and the browserified bundle, as well as the Backbone and underscore 
-      dependancies.
+      Simply include the client-side part of the package onto the page, which
+      may differ depending on how you serve up your static content.
     </p>
-    <pre>
+
+    <pre class="sh_html">
     
-    &lt;script src="underscore.js"&gt;&lt;/script&gt;
-    &lt;script src="backbone.js"&gt;&lt;/script&gt;
-    &lt;script src="dnode.js"&gt;&lt;/script&gt;
-    &lt;script src="backbone-dnode.js"&gt;&lt;/script&gt;
+  &lt;script src="/underscore.js"&gt;&lt;/script&gt;
+  &lt;script src="/backbone.js"&gt;&lt;/script&gt;
+  &lt;script src="/dnode.js"&gt;&lt;/script&gt;
+  &lt;script src="/dnode.backbone.js"&gt;&lt;/script&gt;
     </pre>
     
     <p>
-      Use browserify to <tt>require</tt> the backbone-dnode package, which will return 
-      a JSON object containing the CRUD and Pubsub middleware for DNode. Attatch both 
-      packages and then supply them the DNode <tt>remote</tt> object for server communication.
+      The package will need to be configured as well, allowing it to be used
+      as DNode middleware, if you wish to use the pubsub methods of the package, 
+      enable it, as it is not used by default.  This will broadcast all changes 
+      to any models to anyone else connected, otherwise, it will only call back to 
+      the current client, and use the default Backbone <tt>success</tt> methods.
     </p>
-    <pre>
-    var dnode = require('dnode');
-    var middleware = require('backbone-dnode');
-      
-    dnode()
-        .use(middleware.crud)
-        .use(middleware.pubsub)
-        .connect(function(remote) {
-        
-        });
+    <pre class="sh_javascript">
+
+  DNode()
+    .use(root.dnodeBackbone({
+      pubsub: true
+    }))
+    .connect()
     </pre>
     
     <p>
@@ -274,12 +291,12 @@
       provide optional support based on the model, in case you have different 
       persistant support in mind.
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    Foo = Backbone.Model.extend({
-        type : 'foo',
-        sync : _.sync
-    })
+  var foo = Backbone.Model.extend({
+    type: 'room'
+  , sync: _.sync
+  })
     </pre>
 
     <p>
@@ -287,22 +304,22 @@
       collection to ensure that they will both use the same persistance, even if 
       a model is created outside of the collection.
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    FooCollection = Backbone.Collection.extend({
-        url   : 'foos',
-        type  : 'foo',
-        sync  : _.sync,
-        model : Foo
-    })
+  var FooCollection = Backbone.Collection.extend({
+    url: 'foos'
+  , type: 'foo'
+  , sync: _.sync
+  , model: Foo
+  })
     </pre>
     <p>
       You can also override the sync method globally, by overriding 
       the default <tt>Backbone.sync</tt> method
     </p>
-    <pre>
+    <pre class="sh_javascript">
     
-    Backbone.sync = _.sync;
+  Backbone.sync = _.sync
     </pre>
     
     <p>
@@ -319,23 +336,25 @@
       arguments. You can pass a specific <tt>channel</tt> name in the options, which will 
       be used as the pubsub channel and lookup key, if omitted, the collection will 
       default to the set URL if one can be found. The methods will trigger a Backbone 
-      event when used unless <tt>silent : true</tt> is sent with the options.
+      event when used unless <tt>silent: true</tt> is sent with the options.
     </p>
-    <pre>
-    
-    var options = {};
-    var foos = new FooCollection();
-    
-    foos.subscribe(options, function() {
-        foos.fetch({
-            finished : function(data) {
-            
-                // The server has responded with the fetched data, 
-                // and has added to the collection
-                
-            },
-        });
+    <pre class="sh_javascript">
+
+  var options = {}
+    , foos = new FooCollection()
+
+  foos.subscribe(options, function() {
+    foos.fetch({
+      finished: function(model, resp, options) {
+        // The server has responded with the fetched data, 
+        // and has added to the collection
+      }
+    , error: function(model, resp, options) {
+        // Something went wrong, the server has responded with 
+        // an error code for client side handling
+      }
     })
+  })
     </pre>
     <p>
       When the <tt>subscribe</tt> method has returned, you are now able to use all of the default 
@@ -348,35 +367,48 @@
       conflicts.
     </p>
     
-    <pre>
+    <pre class="sh_javascript">
     
-    foos.create({
-        bar : 'something'
-    });
+  foos.create({
+    bar: 'something'
+  })
     </pre>
+
     <p>
       Backbone.fetch() has been overloaded to accept a <tt>query</tt> and <tt>sorting</tt> argument, which will be 
       directly used on the server against the Mongoose ORM.  The default behavior for passing in <tt>silent:true</tt> 
-      or <tt>add:true</tt> will still be used.
+      or <tt>add: true</tt> will still be used.
     </p>
     
-    <pre>
+    <pre class="sh_javascript">
     
-    foos.fetch({
-        query   : { bar : 'something' },
-        sorting : { sort: [['created',-1]], limit: 20 }
-    });
+  foos.fetch({
+    query: { bar : 'something' }
+  , sorting: { sort: [['created', -1]], limit: 20 }
+  })
     </pre>
-    <!-- 
-    <h2 id="changes">Change Log</h2>
-    -->
     
     <p>
       <br />
-      A <b class="header">Beau Sorensen</b> project.
+      A <a class="header" href="https://sorensen.github.com">Beau Sorensen</a> project.
     </p>
 
   </div>
 
+  <script>
+    var _gaq=[['_setAccount','UA-21349403-3'],['_trackPageview']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g,s)}(document,'script'));
+  </script>
+  <script src="http://shjs.sourceforge.net/sh_main.min.js"></script>
+  <script src="http://shjs.sourceforge.net/lang/sh_sh.min.js"></script>
+  <script src="http://shjs.sourceforge.net/lang/sh_html.min.js"></script>
+  <script src="http://shjs.sourceforge.net/lang/sh_javascript.min.js"></script>
+  <script>
+    window.onload = function() {
+      sh_highlightDocument()
+    }
+  </script>
 </body>
 </html>

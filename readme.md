@@ -1,4 +1,4 @@
-# Backbone DNode [![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
+# backbone-dnode [![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
 
 Backbone-DNode is a server to client integration package for use with, you guessed it, 
 Backbone and DNode. The package brovides both node.js server side code for CRUD and 
@@ -7,6 +7,7 @@ Pubsub routines, as well as the matching client (or server) side routines.
 The idea is to make writing a real-time Backbone application as simple as possible, 
 the app is supported on the server side by using the Mongoose ORM for final validation
 and persistence. 
+
 
 ## Installation
 
@@ -17,6 +18,8 @@ The project can be installed via NPM, or by cloning this repo into your project.
 or
 
     git clone git://github.com/sorensen/backbone-dnode.git
+    cd backbone-dnode
+    npm link
 
 
 ## Server usage
@@ -39,7 +42,6 @@ but that is entirely up to you, as this can be done many ways, and I generally
 prefer to bundle all client-side javascript into a single minifified file.
 
 ```javascript
-
 server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
 ````
 
@@ -48,17 +50,13 @@ instance to the CRUD configuration. At least one mongoose
 schema must be registered to use the CRUD routines.
 
 ```javascript
-
-var Mongoose = require('mongoose')
+var mongoose = require('mongoose')
   , Schema = mongoose.Schema
-
-Mongoose.connect('mongodb://localhost/db')
+  , db = mongoose.connect('mongodb://localhost/db')
 
 Foo = new Schema({
   bar: { type: String, index: true }
 })
-
-db = Mongoose.connect('mongodb://localhost/db')
 ````
 
 (Optional) Configure the Redis connection if you would like to use Redis 
@@ -68,7 +66,6 @@ use redis, the package will default to a single-threaded mode, which will
 work fine so long as you don't have multiple instances of node running.
 
 ```javascript
-
 var redis = require('redis')
   , pub = redis.createClient()
   , sub = redis.createClient()
@@ -78,7 +75,6 @@ Start the node server, and attach the backbone-dnode middleware
 to the DNode instance.
 
 ```javascript
-
 server.listen(8080)
 dnode()
   .use(BackboneDNode.pubsub({
@@ -90,6 +86,7 @@ dnode()
   }))
   .listen(server)
 ````
+
 
 ## Client usage
 
@@ -108,7 +105,6 @@ to any models to anyone else connected, otherwise, it will only call back to
 the current client, and use the default Backbone `success` methods.
 
 ```javascript
-
 DNode()
   .use(root.dnodeBackbone({
     pubsub: true
@@ -124,8 +120,7 @@ provide optional support based on the model, in case you have different
 persistant support in mind.
 
 ```javascript
-
-foo = Backbone.Model.extend({
+var foo = Backbone.Model.extend({
   type: 'room'
 , sync: _.sync
 })
@@ -136,8 +131,7 @@ collection to ensure that they will both use the same persistance, even if
 a model is created outside of the collection.
 
 ```javascript
-
-FooCollection = Backbone.Collection.extend({
+var FooCollection = Backbone.Collection.extend({
   url: 'foos'
 , type: 'foo'
 , sync: _.sync
@@ -149,7 +143,6 @@ You can also override the sync method globally, by overriding
 the default `Backbone.sync` method
 
 ```javascript
-
 Backbone.sync = _.sync
 ````
 
@@ -187,9 +180,8 @@ Backbone `success` callback when normally using these methods, the name is chang
 conflicts.
 
 ```javascript
-
 foos.create({
-    bar : 'something'
+  bar: 'something'
 })
 ````
 
@@ -198,10 +190,35 @@ directly used on the server against the Mongoose ORM.  The default behavior for 
 or `add:true` will still be used.
 
 ```javascript
-
 foos.fetch({
   query: { bar : 'something' }
-, sorting: { sort: [['created',-1]], limit: 20 }
+, sorting: { sort: [['created', -1]], limit: 20 }
 })
 ````
+
+
+## License
+
+(The MIT License)
+
+Copyright (c) 2011-2012 Beau Sorensen <mail@beausorensen.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 

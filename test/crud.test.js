@@ -78,7 +78,6 @@ describe('CRUD', function() {
         assert.strictEqual(typeof this.read, 'function')
         assert.strictEqual(typeof this.updated, 'function')
         assert.strictEqual(typeof this.deleted, 'function')
-        assert.strictEqual(typeof this.published, 'function')
         assert.strictEqual(typeof this.subscribed, 'function')
         assert.strictEqual(typeof this.unsubscribed, 'function')
     
