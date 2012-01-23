@@ -20,8 +20,6 @@ h1, h2, h3, h4, h5, h6 {
 }
   h1 {
     margin-top: 40px;
-    padding-bottom: 3px;
-    border-bottom: 6px solid #C8B1C9;
   }
 #container {
   position: relative;

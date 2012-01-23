@@ -1,4 +1,4 @@
-# Backbone DNode
+# Backbone DNode [![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
 
 Backbone-DNode is a server to client integration package for use with, you guessed it, 
 Backbone and DNode. The package brovides both node.js server side code for CRUD and 

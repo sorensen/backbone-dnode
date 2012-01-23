@@ -1,5 +1,10 @@
 {
   "name": "backbone-dnode"
+, "author": {
+    "name": "Beau Sorensen"
+  , "email": "mail@beausorensen.com"
+  , "url": "http://beausorensen.com"
+  }
 , "description": "Persistant backbone storage through dnode pub/sub"
 , "version": "0.4.1"
 , "homepage": "http://sorensen.github.com/backbone-dnode"
@@ -18,6 +23,9 @@
   , "mongodb"
   , "mongoose"
   ]
+, "scripts": {
+    "test": "make test && make clean"
+  }
 , "main": "./index"
 , "dependencies": {
     "backbone": ">= 0.5.3"
@@ -27,15 +35,10 @@
   , "redis": ">= 0.6.7"
   }
 , "devDependencies" : {
-    "mocha" : "0.5.0"
+    "mocha" : ">= 0.10.0"
   }
 , "browserify": "browser/index.js"
 , "engines": {
     "node": ">= 0.6.2"
-  }
-, "author": {
-    "name": "Beau Sorensen"
-  , "email": "mail@beausorensen.com"
-  , "url": "http://beausorensen.com"
   }
 }

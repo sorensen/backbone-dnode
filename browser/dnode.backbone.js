@@ -132,6 +132,7 @@
     connection: server
   
   , subscribe: function(opt, fn) {
+      if (typeof opt === 'function') { fn = opt; opt = {} }
       opt || (opt = {})
       if (!server) serverError()
       if (!opt.url) opt.url = getValue(this, 'url') || urlError()
@@ -141,6 +142,7 @@
     }
     
   , unsubscribe: function(opt, fn) {
+      if (typeof opt === 'function') { fn = opt; opt = {} }
       opt || (opt = {})
       if (!server) serverError()
       if (!opt.url) opt.url = getValue(this, 'url') || urlError()
