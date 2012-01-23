@@ -6,16 +6,22 @@
   <title>backbone-dnode</title>
   <style>
 <<<<<<< HEAD
+<<<<<<< HEAD
     @import url('http://shjs.sourceforge.net/css/sh_ide-eclipse.min.css');
     body {
       font-size: 16px;
       line-height: 24px;
       background: #F8F3FB;
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     body {
       font-size: 16px;
       line-height: 24px;
       background: #F4EBF8;
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
       color: #022;
       font-family: Arial;
@@ -24,8 +30,12 @@
     div.container {
       width: 720px;
 <<<<<<< HEAD
+<<<<<<< HEAD
       margin: 50px auto;
       padding: 0 10px;
+=======
+      margin: 50px 0 50px 50px;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
       margin: 50px 0 50px 50px;
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
@@ -52,6 +62,7 @@
       font-weight: bold;
       text-shadow: 1px 1px 1px #fff;
 <<<<<<< HEAD
+<<<<<<< HEAD
       border-bottom: 4px solid #D8C8D9;
     }
     h1 {
@@ -76,10 +87,15 @@
         background: none;
       }
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     }
     b.header {
       font-size: 18px;
     }
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     span.alias {
       font-size: 14px;
@@ -104,8 +120,13 @@
       font-size: 12px;
       line-height: 18px;
 <<<<<<< HEAD
+<<<<<<< HEAD
       background-color: #EDE1F2 !important;
       color: #000;
+=======
+      background-color: #EDE1F2;
+      color: #444;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
       background-color: #EDE1F2;
       color: #444;
@@ -150,7 +171,11 @@
 
     <p>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <a href="docs/dnode.backbone.html">The complete annotated source code</a>
+=======
+      <a href="docs/backbone-crud.html">The complete annotated source code</a>
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
       <a href="docs/backbone-crud.html">The complete annotated source code</a>
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
@@ -162,6 +187,12 @@
       <a href="#installation">Installation</a> |
       <a href="#usage">Usage</a> |
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      <!--
+      <a href="#changes">Change Log</a>
+      -->
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
       <!--
       <a href="#changes">Change Log</a>
@@ -191,12 +222,15 @@
     
     <p>
 <<<<<<< HEAD
+<<<<<<< HEAD
       The project can be installed via NPM, or by cloning this repo into your project.
     </p>
     <pre class="sh_sh">
     
   npm install backbone-dnode  
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
       backbone-dnode depends on <b>Node.js</b> and the <b>Node Package Manager</b>
       (npm). If you don't already have these installed, grab the latest. Node
       releases can be found on the <a href="http://www.nodejs.org/#download">download page</a>.
@@ -209,17 +243,26 @@
     <pre>
     
     npm install backbone-dnode  
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
       or
     </p>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <pre class="sh_sh">
     
   git clone git://github.com/sorensen/backbone-dnode.git
   cd backbone-dnode
   npm link
+=======
+    <pre>
+    
+    git clone git://github.com/sorensen/backbone-dnode.git
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
     <pre>
     
@@ -240,6 +283,7 @@
       methods as middleware.
     </p>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var express = require('express')
@@ -259,6 +303,8 @@
 
   server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     <pre>
     
     var express    = require('express'),
@@ -284,6 +330,9 @@
     });
 
     server.use(bundle);
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
@@ -292,6 +341,7 @@
       instance to the CRUD configuration. At least one mongoose 
       schema must be registered to use the CRUD routines.
     </p>
+<<<<<<< HEAD
 <<<<<<< HEAD
     <pre class="sh_javascript">
     
@@ -366,6 +416,8 @@
     }))
     .connect()
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     <pre>
     
     var Mongoose = require('mongoose'),
@@ -422,6 +474,9 @@
         .connect(function(remote) {
         
         });
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
@@ -433,6 +488,7 @@
       persistant support in mind.
     </p>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var foo = Backbone.Model.extend({
@@ -440,12 +496,17 @@
   , sync: _.sync
   })
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     <pre>
     
     Foo = Backbone.Model.extend({
         type : 'foo',
         sync : _.sync
     })
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
 
@@ -454,6 +515,7 @@
       collection to ensure that they will both use the same persistance, even if 
       a model is created outside of the collection.
     </p>
+<<<<<<< HEAD
 <<<<<<< HEAD
     <pre class="sh_javascript">
     
@@ -464,6 +526,8 @@
   , model: Foo
   })
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     <pre>
     
     FooCollection = Backbone.Collection.extend({
@@ -472,6 +536,9 @@
         sync  : _.sync,
         model : Foo
     })
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
@@ -479,9 +546,15 @@
       the default <tt>Backbone.sync</tt> method
     </p>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   Backbone.sync = _.sync
+=======
+    <pre>
+    
+    Backbone.sync = _.sync;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
     <pre>
     
@@ -504,6 +577,7 @@
       be used as the pubsub channel and lookup key, if omitted, the collection will 
       default to the set URL if one can be found. The methods will trigger a Backbone 
 <<<<<<< HEAD
+<<<<<<< HEAD
       event when used unless <tt>silent: true</tt> is sent with the options.
     </p>
     <pre class="sh_javascript">
@@ -524,6 +598,8 @@
     })
   })
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
       event when used unless <tt>silent : true</tt> is sent with the options.
     </p>
     <pre>
@@ -541,6 +617,9 @@
             },
         });
     })
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
@@ -554,6 +633,7 @@
       conflicts.
     </p>
     
+<<<<<<< HEAD
 <<<<<<< HEAD
     <pre class="sh_javascript">
     
@@ -580,6 +660,8 @@
       <br />
       A <a class="header" href="https://sorensen.github.com">Beau Sorensen</a> project.
 =======
+=======
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     <pre>
     
     foos.create({
@@ -606,11 +688,15 @@
     <p>
       <br />
       A <b class="header">Beau Sorensen</b> project.
+<<<<<<< HEAD
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
+=======
 >>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </p>
 
   </div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   <script>
     var _gaq=[['_setAccount','UA-21349403-3'],['_trackPageview']];
@@ -629,6 +715,10 @@
   </script>
 </body>
 </html>
+=======
+</body>
+</html>
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
 =======
 </body>
 </html>
