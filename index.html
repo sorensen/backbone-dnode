@@ -5,19 +5,30 @@
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
   <title>backbone-dnode</title>
   <style>
+<<<<<<< HEAD
     @import url('http://shjs.sourceforge.net/css/sh_ide-eclipse.min.css');
     body {
       font-size: 16px;
       line-height: 24px;
       background: #F8F3FB;
+=======
+    body {
+      font-size: 16px;
+      line-height: 24px;
+      background: #F4EBF8;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
       color: #022;
       font-family: Arial;
       font-family: "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
     }
     div.container {
       width: 720px;
+<<<<<<< HEAD
       margin: 50px auto;
       padding: 0 10px;
+=======
+      margin: 50px 0 50px 50px;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     }
     p, li {
       margin: 16px 0 16px 0;
@@ -40,6 +51,7 @@
       margin-top: 40px;
       font-weight: bold;
       text-shadow: 1px 1px 1px #fff;
+<<<<<<< HEAD
       border-bottom: 4px solid #D8C8D9;
     }
     h1 {
@@ -63,6 +75,12 @@
       .header:active, .header:hover {
         background: none;
       }
+=======
+    }
+    b.header {
+      font-size: 18px;
+    }
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     span.alias {
       font-size: 14px;
       font-style: italic;
@@ -85,8 +103,13 @@
       font-family: Monaco, Consolas, "Lucida Console", monospace;
       font-size: 12px;
       line-height: 18px;
+<<<<<<< HEAD
       background-color: #EDE1F2 !important;
       color: #000;
+=======
+      background-color: #EDE1F2;
+      color: #444;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     }
       tt {
         border: 1px solid #D5CADA;
@@ -126,7 +149,11 @@
     </p>
 
     <p>
+<<<<<<< HEAD
       <a href="docs/dnode.backbone.html">The complete annotated source code</a>
+=======
+      <a href="docs/backbone-crud.html">The complete annotated source code</a>
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
       is also available.
     </p>
 
@@ -134,6 +161,12 @@
       <a href="#introduction">Introduction</a> |
       <a href="#installation">Installation</a> |
       <a href="#usage">Usage</a> |
+<<<<<<< HEAD
+=======
+      <!--
+      <a href="#changes">Change Log</a>
+      -->
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </p>
 
     <h2 id="introduction">Introduction</h2>
@@ -157,20 +190,41 @@
     <h2 id="installation">Installation</h2>
     
     <p>
+<<<<<<< HEAD
       The project can be installed via NPM, or by cloning this repo into your project.
     </p>
     <pre class="sh_sh">
     
   npm install backbone-dnode  
+=======
+      backbone-dnode depends on <b>Node.js</b> and the <b>Node Package Manager</b>
+      (npm). If you don't already have these installed, grab the latest. Node
+      releases can be found on the <a href="http://www.nodejs.org/#download">download page</a>.
+      NPM can be installed with a script:<br />
+      <tt>curl http://npmjs.org/install.sh | sudo sh</tt>
+    </p>
+    <p>
+      The project can be installed via NPM, or by cloning this repo into your project.
+    </p>
+    <pre>
+    
+    npm install backbone-dnode  
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
       or
     </p>
+<<<<<<< HEAD
     <pre class="sh_sh">
     
   git clone git://github.com/sorensen/backbone-dnode.git
   cd backbone-dnode
   npm link
+=======
+    <pre>
+    
+    git clone git://github.com/sorensen/backbone-dnode.git
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
     <h2 id="usage">Usage</h2>
@@ -185,6 +239,7 @@
       Whip up a server and attatch DNode, while using the backbone-dnode
       methods as middleware.
     </p>
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var express = require('express')
@@ -203,6 +258,33 @@
     <pre class="sh_javascript">
 
   server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
+=======
+    <pre>
+    
+    var express    = require('express'),
+        dnode      = require('dnode'),
+        middleware = require('backbone-dnode'),
+        browserify = require('browserify'),
+        server     = express.createServer();
+    </pre>
+    
+    <p>
+      Bundle the client side support files with browserify, then attatch it 
+      to the express server instance. DNode can be included directly into the 
+      bundle to avoid code duplication.
+    </p>
+    <pre>
+    
+    var bundle = browserify({
+        require : [
+            'dnode',
+            'backbone-dnode'
+        ],
+        mount : '/core.js',
+    });
+
+    server.use(bundle);
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
     <p>
@@ -210,6 +292,7 @@
       instance to the CRUD configuration. At least one mongoose 
       schema must be registered to use the CRUD routines.
     </p>
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var mongoose = require('mongoose')
@@ -282,6 +365,64 @@
       pubsub: true
     }))
     .connect()
+=======
+    <pre>
+    
+    var Mongoose = require('mongoose'),
+        Schema   = mongoose.Schema,
+        ObjectId = Schema.ObjectId;
+        database = Mongoose.connect('mongodb://localhost/db');
+
+    Foo = new Schema({
+        bar     : { type : String, index : true },
+        created : { type : Date, default : Date.now }
+    });
+
+    middleware.crud.config(database);
+    </pre>
+        
+    <p>
+        Configure the Redis connection if you would like to use Redis 
+        as the pubsub mechanics. This will allow you to use other libraries 
+        such as Cluster, letting Redis act as the message queue.
+    </p>
+    <pre>
+    
+    var redis = require('redis'),
+        pub   = redis.createClient(),
+        sub   = redis.createClient();
+
+    middleware.pubsub.config(pub, sub);
+    </pre>
+    
+    <h3>Client side</h3>
+    <p>
+      Include DNode and the browserified bundle, as well as the Backbone and underscore 
+      dependancies.
+    </p>
+    <pre>
+    
+    &lt;script src="underscore.js"&gt;&lt;/script&gt;
+    &lt;script src="backbone.js"&gt;&lt;/script&gt;
+    &lt;script src="core.js"&gt;&lt;/script&gt;
+    </pre>
+    
+    <p>
+      Use browserify to <tt>require</tt> the backbone-dnode package, which will return 
+      a JSON object containing the CRUD and Pubsub middleware for DNode. Attatch both 
+      packages and then supply them the DNode <tt>remote</tt> object for server communication.
+    </p>
+    <pre>
+    var dnode = require('dnode');
+    var middleware = require('backbone-dnode');
+      
+    dnode()
+        .use(middleware.crud)
+        .use(middleware.pubsub)
+        .connect(function(remote) {
+        
+        });
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
     <p>
@@ -291,12 +432,21 @@
       provide optional support based on the model, in case you have different 
       persistant support in mind.
     </p>
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var foo = Backbone.Model.extend({
     type: 'room'
   , sync: _.sync
   })
+=======
+    <pre>
+    
+    Foo = Backbone.Model.extend({
+        type : 'foo',
+        sync : _.sync
+    })
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
 
     <p>
@@ -304,6 +454,7 @@
       collection to ensure that they will both use the same persistance, even if 
       a model is created outside of the collection.
     </p>
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   var FooCollection = Backbone.Collection.extend({
@@ -312,14 +463,30 @@
   , sync: _.sync
   , model: Foo
   })
+=======
+    <pre>
+    
+    FooCollection = Backbone.Collection.extend({
+        url   : 'foos',
+        type  : 'foo',
+        sync  : _.sync,
+        model : Foo
+    })
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
       You can also override the sync method globally, by overriding 
       the default <tt>Backbone.sync</tt> method
     </p>
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   Backbone.sync = _.sync
+=======
+    <pre>
+    
+    Backbone.sync = _.sync;
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     
     <p>
@@ -336,6 +503,7 @@
       arguments. You can pass a specific <tt>channel</tt> name in the options, which will 
       be used as the pubsub channel and lookup key, if omitted, the collection will 
       default to the set URL if one can be found. The methods will trigger a Backbone 
+<<<<<<< HEAD
       event when used unless <tt>silent: true</tt> is sent with the options.
     </p>
     <pre class="sh_javascript">
@@ -355,6 +523,25 @@
       }
     })
   })
+=======
+      event when used unless <tt>silent : true</tt> is sent with the options.
+    </p>
+    <pre>
+    
+    var options = {};
+    var foos = new FooCollection();
+    
+    foos.subscribe(options, function() {
+        foos.fetch({
+            finished : function(data) {
+            
+                // The server has responded with the fetched data, 
+                // and has added to the collection
+                
+            },
+        });
+    })
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </pre>
     <p>
       When the <tt>subscribe</tt> method has returned, you are now able to use all of the default 
@@ -367,6 +554,7 @@
       conflicts.
     </p>
     
+<<<<<<< HEAD
     <pre class="sh_javascript">
     
   foos.create({
@@ -391,10 +579,39 @@
     <p>
       <br />
       A <a class="header" href="https://sorensen.github.com">Beau Sorensen</a> project.
+=======
+    <pre>
+    
+    foos.create({
+        bar : 'something'
+    });
+    </pre>
+    <p>
+      Backbone.fetch() has been overloaded to accept a <tt>query</tt> and <tt>sorting</tt> argument, which will be 
+      directly used on the server against the Mongoose ORM.  The default behavior for passing in <tt>silent:true</tt> 
+      or <tt>add:true</tt> will still be used.
+    </p>
+    
+    <pre>
+    
+    foos.fetch({
+        query   : { bar : 'something' },
+        sorting : { sort: [['created',-1]], limit: 20 }
+    });
+    </pre>
+    <!-- 
+    <h2 id="changes">Change Log</h2>
+    -->
+    
+    <p>
+      <br />
+      A <b class="header">Beau Sorensen</b> project.
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
     </p>
 
   </div>
 
+<<<<<<< HEAD
   <script>
     var _gaq=[['_setAccount','UA-21349403-3'],['_trackPageview']];
     (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
@@ -412,3 +629,7 @@
   </script>
 </body>
 </html>
+=======
+</body>
+</html>
+>>>>>>> 6ecb6e8397670a974e62f6dc74068a6d6d94a3fa
