@@ -11,7 +11,7 @@ The idea is to make writing a real-time Backbone application as simple as possib
 the app is supported on the server side by using the Mongoose ORM for final validation
 and persistence.
 
-The annotated source can be found [here](http://sorensen.com/backbone-dnode/dnode.backbone.html)
+The annotated source can be found [here](http://sorensen.github.com/backbone-dnode/docs/dnode.backbone.html)
 
 
 ## Installation
