@@ -31,7 +31,7 @@
     "backbone": ">= 0.5.3"
   , "underscore": ">= 1.1.7"
   , "dnode": ">= 0.8.1"
-  , "mongoose": ">= 2.4.10"
+  , "mongoose": "2.4.10"
   , "redis": ">= 0.7.1"
   }
 , "devDependencies" : {
