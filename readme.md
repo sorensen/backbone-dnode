@@ -1,7 +1,7 @@
 # backbone-dnode 
 
 [![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
-   
+    
 
 Backbone-DNode is a server to client integration package for use with, you guessed it, 
 Backbone and DNode. The package brovides both node.js server side code for CRUD and 
@@ -10,6 +10,8 @@ Pubsub routines, as well as the matching client (or server) side routines.
 The idea is to make writing a real-time Backbone application as simple as possible, 
 the app is supported on the server side by using the Mongoose ORM for final validation
 and persistence.
+
+The annotated source can be found [here](http://sorensen.com/backbone-dnode/dnode.backbone.html)
 
 
 ## Installation
@@ -32,6 +34,7 @@ To run the tests
 or
 
     make test && make clean
+
 
 ## Server usage
 
@@ -230,6 +233,8 @@ foos.fetch({
 })
 ```
 
+
+***
 
 ## License
 
