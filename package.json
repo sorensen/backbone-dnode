@@ -31,8 +31,8 @@
     "backbone": ">= 0.5.3"
   , "underscore": ">= 1.1.7"
   , "dnode": ">= 0.8.1"
-  , "mongoose": ">= 1.8.3"
-  , "redis": ">= 0.6.7"
+  , "mongoose": ">= 2.4.10"
+  , "redis": ">= 0.7.1"
   }
 , "devDependencies" : {
     "mocha" : ">= 0.10.0"
