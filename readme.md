@@ -1,4 +1,6 @@
-# backbone-dnode [![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
+# backbone-dnode 
+
+[![Build Status](https://secure.travis-ci.org/sorensen/backbone-dnode.png)](http://travis-ci.org/sorensen/backbone-dnode) 
 
 Backbone-DNode is a server to client integration package for use with, you guessed it, 
 Backbone and DNode. The package brovides both node.js server side code for CRUD and 
@@ -6,7 +8,7 @@ Pubsub routines, as well as the matching client (or server) side routines.
 
 The idea is to make writing a real-time Backbone application as simple as possible, 
 the app is supported on the server side by using the Mongoose ORM for final validation
-and persistence. 
+and persistence.
 
 
 ## Installation
@@ -28,12 +30,11 @@ Whip up a server and attatch DNode, while using the backbone-dnode
 methods as middleware.
 
 ```javascript
-
 var express = require('express')
   , DNode = require('dnode')
   , BackboneDNode = require('backbone-dnode')
   , server = express.createServer()
-````
+```
 
 Simply allow the package to be served through your express static if 
 you have included the package via `npm`. Serving up the client side script 
@@ -43,7 +44,7 @@ prefer to bundle all client-side javascript into a single minifified file.
 
 ```javascript
 server.use(express.static(__dirname + '/node_modules/backbone-dnode/browser'))
-````
+```
 
 Register your Mongoose schemas, and then pass the database 
 instance to the CRUD configuration. At least one mongoose 
@@ -57,7 +58,7 @@ var mongoose = require('mongoose')
 Foo = new Schema({
   bar: { type: String, index: true }
 })
-````
+```
 
 (Optional) Configure the Redis connection if you would like to use Redis 
 as the pubsub mechanics. This will allow you to use other libraries 
@@ -69,7 +70,7 @@ work fine so long as you don't have multiple instances of node running.
 var redis = require('redis')
   , pub = redis.createClient()
   , sub = redis.createClient()
-````
+```
 
 Start the node server, and attach the backbone-dnode middleware
 to the DNode instance.
@@ -85,7 +86,31 @@ dnode()
     database: db
   }))
   .listen(server)
-````
+```
+
+
+### Whitelisting
+
+Since the model types are going to be specified on the client side, an array 
+of whitelisted models can be passed into the `crud` and `pubsub` midleware.
+It is more important to whitelist the `crud` middleware.
+
+```javascript
+var mongoose = require('mongoose')
+
+mongoose.model('foo', new mongoose.Schema())
+mongoose.model('bar', new mongoose.Schema())
+
+var whitelist = [
+  'foo'
+, 'bar'
+]
+
+BackboneDnode.crud({
+  database: db
+, whitelist: whitelist
+})
+```
 
 
 ## Client usage
@@ -96,7 +121,7 @@ may differ depending on how you serve up your static content.
 ```html
 <script src="/dnode.js"></script>
 <script src="/dnode.backbone.js"></script>
-````
+```
 
 The package will need to be configured as well, allowing it to be used
 as DNode middleware, if you wish to use the pubsub methods of the package, 
@@ -110,7 +135,7 @@ DNode()
     pubsub: true
   }))
   .connect()
-````
+```
 
 
 To connect to node.js and mongoose from the browser (or on the server), 
@@ -124,7 +149,7 @@ var foo = Backbone.Model.extend({
   type: 'room'
 , sync: _.sync
 })
-````
+```
 
 Now create the collection, the attributes are set on both the model and 
 collection to ensure that they will both use the same persistance, even if 
@@ -137,14 +162,14 @@ var FooCollection = Backbone.Collection.extend({
 , sync: _.sync
 , model: Foo
 })
-````
+```
 
 You can also override the sync method globally, by overriding 
 the default `Backbone.sync` method
 
 ```javascript
 Backbone.sync = _.sync
-````
+```
 
 Once the middleware has been established, and a model has been set to use 
 it (or if as been overridden globally), the default Backbone methods will 
@@ -168,7 +193,7 @@ foos.subscribe(options, function() {
     }
   })
 })
-````
+```
 
 When the `subscribe` method has returned, you are now able to use all of the default 
 Backbone model methods and have them interact with the server.  When using any of the 
@@ -183,7 +208,7 @@ conflicts.
 foos.create({
   bar: 'something'
 })
-````
+```
 
 Backbone.fetch() has been overloaded to accept a `query` and `sorting` argument, which will be 
 directly used on the server against the Mongoose ORM.  The default behavior for passing in `silent:true` 
@@ -194,7 +219,7 @@ foos.fetch({
   query: { bar : 'something' }
 , sorting: { sort: [['created', -1]], limit: 20 }
 })
-````
+```
 
 
 ## License
