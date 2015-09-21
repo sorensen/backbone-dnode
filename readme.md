@@ -104,7 +104,7 @@ dnode()
 ### Whitelisting
 
 Since the model types are going to be specified on the client side, an array 
-of whitelisted models can be passed into the `crud` and `pubsub` midleware.
+of whitelisted models can be passed into the `crud` and `pubsub` middleware.
 It is more important to whitelist the `crud` middleware.
 
 ```javascript
